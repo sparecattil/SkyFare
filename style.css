@@ -1,0 +1,287 @@
+@import url('https://fonts.googleapis.com/css2?family=Antonio:wght@400;600;700&display=swap');
+
+
+* {
+  margin: 0;
+  padding: 10px;
+  box-sizing: border-box; 
+}
+
+body {
+  width: 100%;
+  height: 1500px;
+  font-family: 'Antonio', sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; 
+  overflow-y: auto;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, lightblue, white);
+  background-repeat: no-repeat;
+}
+
+.header {
+  width: 100%;
+  height: 200px;
+  display: flex;
+  color: white;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.header h1 {
+  letter-spacing: 12px;
+  font-size: 100px;
+}
+
+.header p{
+  font-size: 16px;
+  letter-spacing: 5px;
+  
+}
+
+.account {
+  display: flex;
+  color: white;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 400px;
+  gap: 10px;
+}
+
+.account h1{
+  letter-spacing: 2px;
+}
+
+.account input {
+  padding-left: 2ch;
+  border: none;
+  border-radius: 50px;
+  width: 400px;
+  height: 30px;
+  font-size: 14px;
+  padding-right: 2ch;
+}
+
+.account button {
+  cursor: pointer;
+  border: none;
+  border-radius: 50px;
+  width: 400px;
+  height: 30px;
+  font-size: 14px;
+  color: white;
+  opacity: 90%;
+  background-color: gold;
+  font-weight: bold;
+}
+
+.account button:hover {
+  background-color: grey;
+  opacity: 90%;
+}
+
+.accountInformation {
+  display: flex;
+  color: white;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  height: 400px;
+}
+
+.accountInformation h1{
+  letter-spacing: 2px;
+}
+
+.names {
+  color: white;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.names input {
+  padding-left: 2ch;
+  border: none;
+  border-radius: 50px;
+  width: 200px;
+  height: 30px;
+  font-size: 14px;
+  padding-right: 2ch;
+}
+
+.airportUser {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 420px;
+  gap: 10px;
+}
+
+.airportUser select {
+  padding-left: 1ch;
+  padding-top: 1ch;
+  padding-bottom: 1ch;
+  color: grey;
+  border: none;
+  border-radius: 50px;
+  width: 100%;
+  height: 33px;
+  font-size: 14px;
+  padding-right: 1ch;
+}
+
+.flightInformation {
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 450px;
+  gap: 10px;
+}
+
+.flightInformation select {
+  padding-left: 1ch;
+  padding-top: 1ch;
+  padding-bottom: 1ch;
+  color: grey;
+  border: none;
+  border-radius: 50px;
+  width: 200px;
+  height: 33px;
+  font-size: 14px;
+  padding-right: 1ch;
+}
+
+.submitInformation {
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 420px;
+  gap: 10px;
+}
+
+.submitInformation button {
+  cursor: pointer;
+  border: none;
+  border-radius: 50px;
+  width: 100%;
+  height: 33px;
+  font-size: 14px;
+  color: white;
+  opacity: 90%;
+  background-color: gold;
+  font-weight: bold;
+}
+
+.submitInformation button:hover {
+  background-color: grey;
+  opacity: 90%;
+}
+
+.flightSearch{
+  display: flex;
+  padding-top: 20px;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+}
+
+.flightSearch select {
+  padding-left: 1ch;
+  padding-top: 1ch;
+  padding-bottom: 1ch;
+  color: grey;
+  border: none;
+  border-radius: 50px;
+  width: 500px;
+  height: 33px;
+  font-size: 14px;
+  padding-right: 1ch;
+}
+
+.flightSearch button {
+  cursor: pointer;
+  border: none;
+  padding-bottom: 2ch;
+  border-radius: 50px;
+  width: 150px;
+  height: 33px;
+  font-size: 14px;
+  color: white;
+  opacity: 90%;
+  background-color: gold;
+  font-weight: bold;
+}
+
+.flightSearch button:hover {
+  background-color: grey;
+  opacity: 90%;
+}
+
+.reccomendations {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 250px;
+  gap: 100px;
+}
+
+.reccomendations h1 {
+  color: white;
+  font-size: 40px;
+  letter-spacing: 2px;
+}
+
+.reccomendations p {
+  color: white;
+  font-size: 18px;
+  line-height: 5px;
+}
+
+.quarterOne, .quarterTwo, .quarterThree, .quarterFour {
+  background-color: grey;
+  opacity: 90%;
+  border-radius: 30px;
+}
+
+.flightSearchMap {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: auto;
+  padding-top: 30px;
+}
+
+.map {
+  min-width: 50%;
+  min-height: 420px;
+  border-radius: 45px;
+}
+
+.flightSearchChart {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 500px;
+  padding-top: 50px;
+}
+
+.flightSearchChart h1 {
+  color: black;
+  opacity: 50%;
+}

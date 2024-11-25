@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SkyFare</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/script.js" defer></script>
+  </head>
+  <body>
+    <div class = "header">
+      <h1>SKYFARE</h1>
+      <p>THE WORLD HAS NO LIMITS</p>
+    </div>
+    <div class = "accountInformation">
+      <h1>USER INFORMATION</h1>
+      <p></p>
+      <div class = "names">
+        <input type="text" placeholder = "First Name"  class = "firstName" id = "firstName" required/>
+        <input type="text" placeholder = "Last Name"  class = "lastName" id = "lastName" required/>
+      </div>
+      <div class = "airportUser">
+        <select class = "homeAirport" id = "homeAirport">
+            <option>Home Airport</option>
+            <option value="option2">Option 2</option>
+            <option value="option3">Option 3</option>
+            <option value="option4">Option 4</option>
+        </select>
+      </div>
+      <div class = "flightInformation">
+        <select class = "airline" id = "airline">
+            <option>Price Range</option>
+            <option value="option2">Option 2</option>
+            <option value="option3">Option 3</option>
+            <option value="option4">Option 4</option>
+        </select>
+        <select class = "distance" id = "distance">
+            <option>Distance</option>
+            <option value="option2">Option 2</option>
+            <option value="option3">Option 3</option>
+            <option value="option4">Option 4</option>
+        </select>
+      </div>
+      <div class = "submitInformation">
+        <button type="button" onclick="submitAccountInformation">SUBMIT</button>
+      </div>
+    </div>
+  </body>
+</html>
