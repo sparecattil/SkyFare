@@ -2,7 +2,7 @@ import redis
 import csv
 import json
 # Redis client
-redisClient = redis.Redis(port=6379);
+redisClient = redis.Redis(port=6379)
 # The CSV file containing the pokemon data
 csvFilename = "US Airline Flight Routes and Fares 1993-2024.csv"
 # Track how many file lines we've processed
@@ -28,9 +28,13 @@ def populateRedis():
             #lowestFare = data['fare_low']
             #geocodeOne = data['Geocoded_City1']
             #geocodeTwo = data['Geocoded_City2']
-
-            year = data['Year']
-            quarter = data['quarter']
+            """
+            info = {
+                "year": data['Year'],
+                "quarter": data['quarter'],
+                "averageFare": data['fare'],
+                "nsmiles": data['nsmiles']
+            }
 
             origin = {
                 "airport": data['airport_1'],
@@ -39,7 +43,7 @@ def populateRedis():
             }
 
             destination = {
-                "airport": data['airport2'],
+                "airport": data['airport_2'],
                 "city": data['city2'],
                 "geocode": data['Geocoded_City2']
             }
@@ -54,14 +58,43 @@ def populateRedis():
                 "fare": data['fare_low']
             }
 
-            averageFare = data['fare']
-            nsmiles = data['nsmiles']
-
+            """
             line_count += 1
             if line_count%100 == 0:
                 print(f'Processed {line_count} lines.')
-            redisClient.sadd('species:' + species, json.dumps(pokemonObj))
-            
+
+            flightID = data['tbl1apk']
+
+            redisClient.hmset(f"flight:{flightID}:info", {
+                "year": data['Year'],
+                "quarter": data['quarter'],
+                "averageFare": data['fare'],
+                "nsmiles": data['nsmiles']
+            })
+
+            redisClient.hmset(f"flight:{flightID}:origin", {
+                "airport": data['airport_1'],
+                "city": data['city1'],
+                "geocode": data['Geocoded_City1']
+            })
+
+            redisClient.hmset(f"flight:{flightID}:destination", {
+                "airport": data['airport_2'],
+                "city": data['city2'],
+                "geocode": data['Geocoded_City2']
+            })
+
+            redisClient.hmset(f"flight:{flightID}:largestCarrier", {
+                "name": data['carrier_lg'],
+                "fare": data['fare_lg']
+            })
+
+            redisClient.hmset(f"flight:{flightID}:lowestCarrier", {
+                "name": data['carrier_low'],
+                "fare": data['fare_low']
+            })
+
     print(f'Processed {line_count} lines.')
-populateRedis();
-redisClient.quit();
+
+populateRedis()
+redisClient.quit()
