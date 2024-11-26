@@ -10,7 +10,7 @@ mongoDBDatabase = 'SkyFare'
 mongoCollection = 'flightroutes'
 mongoUrl = "mongodb://localhost:27017/SkyFare"
 #The size of document upload batches
-batchSize = 50
+batchSize = 1000
 #database clients
 redisClient = redis.Redis(port=6379, decode_responses=True)
 ## A helper function that builds a good mongoDB key
@@ -44,13 +44,10 @@ def populateRoutes():
         originAirport = redisClient.hget("flight:" + flightID + ":origin", "airport")
         originCity = redisClient.hget("flight:" + flightID + ":origin", "city")
         originGeocode = redisClient.hget("flight:" + flightID + ":origin", "geocode")
-        print(originGeocode +"----")
         originLat = ""
         originLon = ""
         if (originGeocode != "" and "\n" in originGeocode):
             originLat, originLon = originGeocode.split("\n")[1].strip("()").split(", ")
-        else:
-            print("skip orig")
 
         destinationAirport = redisClient.hget("flight:" + flightID + ":destination", "airport")
         destinationCity = redisClient.hget("flight:" + flightID + ":destination", "city")
@@ -59,8 +56,6 @@ def populateRoutes():
         destinationLon = ""
         if (destinationGeocode != "" and "\n" in destinationGeocode):
             destinationLat, destinationLon = destinationGeocode.split("\n")[1].strip("()").split(", ")
-        else:
-            print("skip dest")
 
         largestCarrierName = redisClient.hget("flight:" + flightID + ":largestCarrier", "name")
         largestCarrierFare = redisClient.hget("flight:" + flightID + ":largestCarrier", "fare")
