@@ -1,3 +1,4 @@
+
 from pymongo import MongoClient
 import redis
 import re #regular expressions
@@ -14,19 +15,19 @@ batchSize = 50
 redisClient = redis.Redis(port=6379, decode_responses=True)
 ## A helper function that builds a good mongoDB key
 ## @param string the unicode string being keyified
-def mongoKeyify(string):
-    # remove bad chars, and disallow starting with an underscore
-    # string = re.sub("[\t \?\#\\\-\+\.\,'\"()*&!\/]+", '_', string)
-    s = re.sub(r"[-()\"#/@;:<>{}`+=~|.!?,\ ]", "_", string.lower())
-    return re.sub("^_+", '', s)
 ## Insert documents into mongoDB in bulk.
 ## @param documents The documents to store
 ## @param count The number of documents being inserted.
 def saveDocs(documents, count):
     with MongoClient(mongoUrl) as client:
         dbo = client[mongoDBDatabase]
-        res = dbo[mongoCollection].insert_many(documents)
-        print("Number of documents inserted: " + str(len(res.inserted_ids)))
+        for doc in documents:
+            dbo[mongoCollection].update_one(
+                {"_id": doc["_id"]},  
+                {"$set": doc},       
+                upsert=True           
+            )
+            print(f"Number of documents processed: {len(documents)}")
 
 
 def populateRoutes():
@@ -68,7 +69,7 @@ def populateRoutes():
         lowestCarrierFare = redisClient.hget("flight:" + flightID + ":lowestCarrier", "fare")
 
         routeBatch.append({
-            "_id": mongoKeyify(flightID),
+            "_id": flightID,
             "year": year,
             "quarter": quarter,
             "origin": {
