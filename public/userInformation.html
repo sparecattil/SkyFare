@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>SkyFare</title>
-    <link rel="stylesheet" href="/style.css" />
-    <script src="/script.js" defer></script>
+    <link rel="stylesheet" href="styles/style.css" />
+    <script src="scripts/userScript.js" defer></script>
   </head>
   <body>
     <div class = "header">
@@ -22,27 +22,18 @@
       <div class = "airportUser">
         <select class = "homeAirport" id = "homeAirport">
             <option>Home Airport</option>
-            <option value="option2">Option 2</option>
-            <option value="option3">Option 3</option>
-            <option value="option4">Option 4</option>
         </select>
       </div>
       <div class = "flightInformation">
-        <select class = "airline" id = "airline">
+        <select class = "priceRange" id = "priceRange" disabled>
             <option>Price Range</option>
-            <option value="option2">Option 2</option>
-            <option value="option3">Option 3</option>
-            <option value="option4">Option 4</option>
         </select>
-        <select class = "distance" id = "distance">
+        <select class = "distance" id = "distance" disabled>
             <option>Distance</option>
-            <option value="option2">Option 2</option>
-            <option value="option3">Option 3</option>
-            <option value="option4">Option 4</option>
         </select>
       </div>
       <div class = "submitInformation">
-        <button type="button" onclick="submitAccountInformation">SUBMIT</button>
+        <button id = "submitAccount" type="button" onclick="submitAccountInformation()" disabled>SUBMIT</button>
       </div>
     </div>
   </body>

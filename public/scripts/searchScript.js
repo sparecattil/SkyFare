@@ -1,14 +1,27 @@
 // Get the canvas element
 const ctx = document.getElementById('myChart').getContext('2d');
 
+function generateYears(startYear, endYear) {
+    const years = [];
+    for (let year = startYear; year <= endYear; year++) {
+        years.push(year.toString());
+    }
+    return years;
+}
+
+// Function to generate random data for each year (replace with actual data)
+function generateDataForYears() {
+    return Array.from({ length: generateYears(1993, 2024).length }, () => Math.floor(Math.random() * 20));
+}
+
 // Create the chart
 const myChart = new Chart(ctx, {
-    type: 'bar',
+    type: 'line',
     data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        labels: generateYears(1993, 2024),
         datasets: [{
             label: 'Votes',
-            data: [12, 19, 3, 5, 2, 3],
+            data: generateDataForYears(),
             backgroundColor: [
                 'rgba(255, 99, 132, 0.2)',
                 'rgba(54, 162, 235, 0.2)',
@@ -32,15 +45,14 @@ const myChart = new Chart(ctx, {
         scales: {
             y: {
                 beginAtZero: true
+            },
+            x: {
+                beginAtZero: true
             }
         }
     }
 });
 
-const bounds = [
-    [24.396308, -125.0],
-    [49.384358, -66.93457] 
-];
 
 const map = L.map('map', {
     dragging: false, 
