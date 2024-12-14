@@ -14,7 +14,7 @@ const port = process.env.PORT || 3000;
 
 // MongoDB connection URI and Database Name
 const mongoURI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017";
-const dbName = "mydatabase"; // Replace with your database name
+const dbName = "SkyFare"; // Replace with your database name
 
 // Initialize MongoDB connection
 let db;
