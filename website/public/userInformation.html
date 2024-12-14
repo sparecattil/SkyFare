@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SkyFare</title>
+    <link rel="stylesheet" href="styles/style.css" />
+    <script src="scripts/userScript.js" defer></script>
+  </head>
+  <body>
+    <div class = "header">
+      <h1>SKYFARE</h1>
+      <p>THE WORLD HAS NO LIMITS</p>
+    </div>
+    <div class = "accountInformation">
+      <h1>USER INFORMATION</h1>
+      <p></p>
+      <div class = "names">
+        <input type="text" placeholder = "First Name"  class = "firstName" id = "firstName" required/>
+        <input type="text" placeholder = "Last Name"  class = "lastName" id = "lastName" required/>
+      </div>
+      <div class = "airportUser">
+        <select class = "homeAirport" id = "homeAirport">
+            <option>Home Airport</option>
+        </select>
+      </div>
+      <div class = "flightInformation">
+        <select class = "priceRange" id = "priceRange" disabled>
+            <option>Price Range</option>
+        </select>
+        <select class = "distance" id = "distance" disabled>
+            <option>Distance</option>
+        </select>
+      </div>
+      <div class = "submitInformation">
+        <button id = "submitAccount" type="button" onclick="submitAccountInformation()" disabled>SUBMIT</button>
+      </div>
+    </div>
+  </body>
+</html>

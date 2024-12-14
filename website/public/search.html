@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SkyFare</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="styles/style.css" />
+    <script src="scripts/searchScript.js" defer></script>
+  </head>
+  <body>
+    <div class = "header">
+      <h1>SKYFARE</h1>
+      <p>THE WORLD HAS NO LIMITS</p>
+    </div>
+    <div class = "reccomendations">
+      <div class = "quarterOne">
+        <h1>QUARTER ONE</h1>
+        <p>FROM:</p>
+        <p>TO:</p>
+        <p>AIRLINE:</p>
+        <p>MILES:</p>
+        <p>PRICE:</p>
+      </div>
+      <div class = "quarterTwo">
+        <h1>QUARTER TWO</h1>
+        <p>FROM:</p>
+        <p>TO:</p>
+        <p>AIRLINE:</p>
+        <p>MILES:</p>
+        <p>PRICE:</p>
+      </div>
+      <div class = "quarterThree">
+        <h1>QUARTER THREE</h1>
+        <p>FROM:</p>
+        <p>TO:</p>
+        <p>AIRLINE:</p>
+        <p>MILES:</p>
+        <p>PRICE:</p>
+      </div>
+      <div class = "quarterFour">
+        <h1>QUARTER FOUR</h1>
+        <p>FROM:</p>
+        <p>TO:</p>
+        <p>AIRLINE:</p>
+        <p>MILES:</p>
+        <p>PRICE:</p>
+      </div>
+    </div>
+    <div class = "flightSearchMap">
+      <div id="map" class = "map"></div>
+    </div>
+    <div class = "flightSearch">
+      <select class = "originAirport" id = "originAirport">
+            <option>Origin Airport</option>
+            <option value="option2">Option 2</option>
+            <option value="option3">Option 3</option>
+            <option value="option4">Option 4</option>
+        </select>
+      <select class = "destinationAirport" id = "destinationAirport" disabled>
+            <option>Destination Airport</option>
+            <option value="option2">Option 2</option>
+            <option value="option3">Option 3</option>
+            <option value="option4">Option 4</option>
+        </select>
+      <button type="button" onclick="submitFlightSearch()">SUBMIT</button>
+    </div>
+        <div class = "flightSearchChart">
+          <h1>PRICE HISTORY</h1>
+          <canvas id = "myChart" class = "chartPrices"> </canvas>
+        </div>
+  </body>
+</html>
