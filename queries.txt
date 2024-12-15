@@ -193,7 +193,98 @@ Query Five:
   
   Return: For each quarter match the following fields and return the best match destination
   
-  Answer:
+  Answer: // Input values
+          const originAirportInput = "FAR"; // Example origin airport
+          const maxDistance = 180;          // Example distance
+          const inputPrice = 220;            // Example price
+
+          db.flightroutes.aggregate([
+            // Match flights with the given origin airport
+            {
+              $match: {
+                "origin.airport": originAirportInput
+              }
+            },
+            // Add calculated fields for distance and price deviation
+            {
+              $addFields: {
+                distanceDeviation: { 
+                  $abs: { 
+                    $subtract: [ 
+                      { 
+                        $toDouble: { 
+                          $cond: {
+                            if: { 
+                              $or: [
+                                { $eq: [ "$nsmiles", "" ] }, 
+                                { $eq: [ "$nsmiles", null ] }
+                              ]
+                            }, 
+                            then: 0, 
+                            else: "$nsmiles"
+                          }
+                        }
+                      },
+                      maxDistance 
+                    ] 
+                  }
+                },
+                priceDeviation: { 
+                  $abs: { 
+                    $subtract: [ 
+                      { 
+                        $toDouble: { 
+                          $cond: {
+                            if: { 
+                              $or: [
+                                { $eq: [ "$lowestCarrier.fare", "" ] },
+                                { $eq: [ "$lowestCarrier.fare", null ] }
+                              ]
+                            },
+                            then: 0, 
+                            else: "$lowestCarrier.fare"
+                          }
+                        }
+                      },
+                      inputPrice 
+                    ] 
+                  }
+                }
+              }
+            },
+            // Sort first by distance deviation, then by price deviation
+            {
+              $sort: {
+                distanceDeviation: 1,
+                priceDeviation: 1
+              }
+            },
+            // Group by quarter and pick the best flight for each quarter
+            {
+              $group: {
+                _id: "$quarter",
+                bestFlight: { $first: "$$ROOT" }
+              }
+            },
+            // Project the desired output fields
+            {
+              $project: {
+                _id: 0,
+                quarter: "$_id",
+                origin: "$bestFlight.origin.airport",
+                destination: "$bestFlight.destination.airport",
+                price: "$bestFlight.lowestCarrier.fare",
+                miles: "$bestFlight.nsmiles"
+              }
+            },
+            // Sort results by quarter
+            {
+              $sort: {
+                quarter: 1
+              }
+            }
+          ]);
+
   
 Query Six: 
 
