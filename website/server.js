@@ -97,23 +97,36 @@ async function getDistinctAirports() {
   return distinctAirports;
 }
 
-//getDistinctAirports();
-
-app.post('/test', async(req, res) => {
-  const { testingString } = req.body;
-
-  if (!testingString ) {
-    return res.status(400).send('Test not received');
-  }
-
+app.get('/one', async(req, res) => {
   try {
     const distinctAirports = await getDistinctAirports();
-    console.log("Server:")
-    console.log(distinctAirports);
+    //console.log("Server:")
+    //console.log(distinctAirports);
     res.json({ distinctAirports });
   } 
   catch (error) {
     console.error('Error in /test route:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.post('/two', async(req, res) => {
+  const { originAirport } = req.body;
+
+  if (!originAirport ) {
+    return res.status(400).send('Origin not received on Server');
+  }
+
+  console.log("Received on Server: " + originAirport);
+
+  try {
+    const distinctAirports = await getDistinctAirports(); // Replace with query two function
+    console.log("Server:") // CHANGE NEEDED
+    console.log(distinctAirports); // CHANGE NEEDED
+    res.json({ distinctAirports }); // CHANGE NEEDED
+  } 
+  catch (error) {
+    console.error('Error in /two route:', error);
     res.status(500).send('Internal Server Error');
   }
 });
