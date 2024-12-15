@@ -195,8 +195,8 @@ async function priceRangeAndDistance(originAirport) {
 
     // Run the aggregation query
     const aggregationPipeline = [
-      { 
-        $match: { "origin.airport": originAirport }  // Match the provided origin airport
+      {
+        $match: { "origin.airport": originAirport }  // Replace "STL" with the desired origin airport
       },
       {
         $addFields: {
@@ -206,12 +206,17 @@ async function priceRangeAndDistance(originAirport) {
                 $ifNull: [
                   { 
                     $cond: {
-                      if: { $or: [{ $eq: [{ $trim: { input: "$averageFare" } }, ""] }, { $eq: ["$averageFare", null] }] },
+                      if: { 
+                        $or: [
+                          { $eq: [{ $trim: { input: "$averageFare" } }, ""] }, 
+                          { $eq: ["$averageFare", null] }
+                        ]
+                      },
                       then: null,
                       else: "$averageFare"
                     }
                   },
-                  null
+                  null  // Default to null for invalid values
                 ]
               }
             },
@@ -220,7 +225,12 @@ async function priceRangeAndDistance(originAirport) {
                 $ifNull: [
                   { 
                     $cond: {
-                      if: { $or: [{ $eq: [{ $trim: { input: "$lowestCarrier.fare" } }, ""] }, { $eq: ["$lowestCarrier.fare", null] }] },
+                      if: { 
+                        $or: [
+                          { $eq: [{ $trim: { input: "$lowestCarrier.fare" } }, ""] }, 
+                          { $eq: ["$lowestCarrier.fare", null] }
+                        ]
+                      },
                       then: null,
                       else: "$lowestCarrier.fare"
                     }
@@ -234,7 +244,12 @@ async function priceRangeAndDistance(originAirport) {
                 $ifNull: [
                   { 
                     $cond: {
-                      if: { $or: [{ $eq: [{ $trim: { input: "$largestCarrier.fare" } }, ""] }, { $eq: ["$largestCarrier.fare", null] }] },
+                      if: { 
+                        $or: [
+                          { $eq: [{ $trim: { input: "$largestCarrier.fare" } }, ""] }, 
+                          { $eq: ["$largestCarrier.fare", null] }
+                        ]
+                      },
                       then: null,
                       else: "$largestCarrier.fare"
                     }
@@ -254,8 +269,27 @@ async function priceRangeAndDistance(originAirport) {
           _id: "$origin.airport",  // Group by origin airport
           maxFare: { $max: "$fares" },
           minFare: { $min: "$fares" },
-          maxMiles: { $max: "$nsmiles" },
-          minMiles: { $min: "$nsmiles" }
+          maxMiles: { $max: { $toDouble: "$nsmiles" } },  // Ensure miles are treated as numbers
+          minMiles: { $min: { $toDouble: "$nsmiles" } }
+        }
+      },
+      {
+        $addFields: {
+          // Adjust miles only if maxMiles is smaller than minMiles
+          maxMiles: {
+            $cond: {
+              if: { $lt: ["$maxMiles", "$minMiles"] },  // If maxMiles < minMiles
+              then: "$minMiles",  // Swap the values
+              else: "$maxMiles"
+            }
+          },
+          minMiles: {
+            $cond: {
+              if: { $lt: ["$maxMiles", "$minMiles"] },  // If maxMiles < minMiles
+              then: "$maxMiles",  // Swap the values
+              else: "$minMiles"
+            }
+          }
         }
       },
       {
@@ -267,8 +301,8 @@ async function priceRangeAndDistance(originAirport) {
             minFare: "$minFare"
           },
           distanceOptions: {
-            maxMiles: "$maxMiles",
-            minMiles: "$minMiles"
+            maxMiles: "$maxMiles",  // Use adjusted maxMiles
+            minMiles: "$minMiles"   // Use adjusted minMiles
           }
         }
       }
@@ -296,6 +330,7 @@ async function priceRangeAndDistance(originAirport) {
     await client.close();
   }
 
+  //console.log({ maxFare, minFare, maxMiles, minMiles });
   return { maxFare, minFare, maxMiles, minMiles };
 }
 
@@ -383,10 +418,10 @@ async function getLatLong(originAirport, destinationAirport) {
 
     if (queryResult.length > 0) {
       const result = queryResult[0];
-      originLat = result.origin.latitude;
-      originLon = result.origin.longitude;
-      destLat = result.destination.latitude;
-      destLon = result.destination.longitude;
+      originLat = result['origin']['latitude'];
+      originLon = result['origin']['longitude'];
+      destLat = result['destination']['latitude'];
+      destLon = result['destination']['longitude'];
     } 
     else {
       return { message: "No data found for the specified airports." };
@@ -402,7 +437,8 @@ async function getLatLong(originAirport, destinationAirport) {
     await client.close();
   }
 
-  console.log({ originLat, originLon, destLat, destLon });
+  //console.log({ originLat, originLon, destLat, destLon });
   return { originLat, originLon, destLat, destLon };
 }
+
 
