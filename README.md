@@ -18,13 +18,23 @@ For Windows, use the following command:
 myvenv\Scripts\activate
 ```
 
+For macOS and Linux, use the following command:
+
+```bash
+source venv/bin/activate
+```
+
 ## 3. Install Node.js Dependencies
 
 Run the following commands to install the required Node.js packages:
 
 ```bash
 npm install express
+```
+```bash
 npm install mongodb
+```
+```bash
 npm install ioredis
 ```
 

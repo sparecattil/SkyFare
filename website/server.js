@@ -34,8 +34,8 @@ app.get("/", (req, res) => {
 });
 
 app.get("/userInformation.html", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "userInformation.html"));
-  });
+  res.sendFile(path.join(__dirname, "public", "userInformation.html"));
+});
 
 // Sends files from the "public" directory to the client
 app.use(express.static(path.join(__dirname, "public")));
@@ -48,48 +48,50 @@ const client = new MongoClient(uri);
 
 // Connect to the local Redis server (default port is 6379)
 const redis = new Redis({
-host: '127.0.0.1', // Localhost
-port: 6379,         // Default Redis port
-db: 0               // Redis database index (default is 0)
+  host: '127.0.0.1', // Localhost
+  port: 6379,         // Default Redis port
+  db: 0               // Redis database index (default is 0)
 });
 
 // Test the connection
 redis.on('connect', () => {
-console.log('Connected to Redis!');
+  console.log('Connected to Redis!');
 });
 
 redis.on('error', (err) => {
-console.error('Error connecting to Redis:', err);
+  console.error('Error connecting to Redis:', err);
 });
 
 // Async function to connect and run a distinct query
 async function getDistinctAirports() {
-    try {
-      // Connect to the MongoDB client
-      await client.connect();
-      console.log('Connected to MongoDB');
-  
-      // Check if db is properly initialized
-      const db = client.db(dbName);
-      if (!db) {
-        throw new Error('Failed to initialize the database');
-      }
-  
-      // Access the collection
-      const collection = db.collection('flightroutes');
-      if (!collection) {
-        throw new Error('Collection "flightroutes" does not exist');
-      }
-  
-      // Run the distinct query
-      const distinctAirports = await collection.distinct('origin.airport');
-      console.log('Distinct airports:', distinctAirports);
-  
-    } catch (err) {
-      console.error('Error running the query:', err);
-    } finally {
-      await client.close();
-    }
-  }
+  try {
+    // Connect to the MongoDB client
+    await client.connect();
+    console.log('Connected to MongoDB');
 
-  getDistinctAirports();
+    // Check if db is properly initialized
+    const db = client.db(dbName);
+    if (!db) {
+      throw new Error('Failed to initialize the database');
+    }
+
+    // Access the collection
+    const collection = db.collection('flightroutes');
+    if (!collection) {
+      throw new Error('Collection "flightroutes" does not exist');
+    }
+
+    // Run the distinct query
+    const distinctAirports = await collection.distinct('origin.airport');
+    console.log('Distinct airports:', distinctAirports);
+
+  } 
+  catch (err) {
+    console.error('Error running the query:', err);
+  } 
+  finally {
+    await client.close();
+  }
+}
+
+getDistinctAirports();
