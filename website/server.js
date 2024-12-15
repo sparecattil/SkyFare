@@ -9,6 +9,7 @@ import { MongoClient } from 'mongodb';
 import path from 'path'; // Library for path transformation 
 import http from 'http'; // Library for HTTP server
 import Redis from 'ioredis'; // Redis client
+import { fileURLToPath } from 'url'; // From change to "const __dirname = path.dirname(new URL(import.meta.url).pathname);"
 
 const app = express();
 
@@ -26,7 +27,7 @@ server.listen(port, () => {
 //  Initializes parsing of JSON requests
 app.use(express.json()); 
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const __dirname = path.dirname(fileURLToPath(import.meta.url)); //Changed from "const __dirname = path.dirname(new URL(import.meta.url).pathname);"
 
 // Serve the index.html file
 app.get("/", (req, res) => {
@@ -64,6 +65,7 @@ redis.on('error', (err) => {
 
 // Async function to connect and run a distinct query
 async function getDistinctAirports() {
+  var distinctAirports;
   try {
     // Connect to the MongoDB client
     await client.connect();
@@ -82,8 +84,8 @@ async function getDistinctAirports() {
     }
 
     // Run the distinct query
-    const distinctAirports = await collection.distinct('origin.airport');
-    console.log('Distinct airports:', distinctAirports);
+    distinctAirports = await collection.distinct('origin.airport');
+    //console.log('Distinct airports:', distinctAirports);
 
   } 
   catch (err) {
@@ -92,6 +94,26 @@ async function getDistinctAirports() {
   finally {
     await client.close();
   }
+  return distinctAirports;
 }
 
-getDistinctAirports();
+//getDistinctAirports();
+
+app.post('/test', async(req, res) => {
+  const { testingString } = req.body;
+
+  if (!testingString ) {
+    return res.status(400).send('Test not received');
+  }
+
+  try {
+    const distinctAirports = await getDistinctAirports();
+    console.log("Server:")
+    console.log(distinctAirports);
+    res.json({ distinctAirports });
+  } 
+  catch (error) {
+    console.error('Error in /test route:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
