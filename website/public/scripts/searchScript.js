@@ -87,3 +87,35 @@ const pathCoordinates = [
 ];
 
 L.polyline(pathCoordinates, { color: 'blue', weight: 3 }).addTo(map);
+
+
+document.addEventListener('DOMContentLoaded', function() {
+allOriginAirports(); // Call the function when the DOM is fully loaded
+});
+
+let distinctAirports = [];
+
+// Get the select element
+const selectElement = document.getElementById("originAirport");
+
+async function allOriginAirports() {
+    const response = await fetch('/one');
+
+    if (response.ok) {
+        const data = await response.json();
+        distinctAirports = data.distinctAirports;
+        console.log("Client:");
+        console.log(distinctAirports);
+
+        // Loop through the airports array and create option elements
+        distinctAirports.forEach(airport => {
+        const option = document.createElement("option");
+        option.value = airport; // Set the value attribute
+        option.textContent = airport; // Set the visible text
+        selectElement.appendChild(option); // Append the option to the select
+        });
+    } 
+    else {
+        alert('Response from server not received');
+    }
+}
