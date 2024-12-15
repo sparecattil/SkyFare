@@ -129,7 +129,7 @@ selectElement.addEventListener("change", function() {
       const submitFlights = document.getElementById("submitFlights");
       submitFlights.disabled = false;
       destinationAirport.disabled = false;
-      alldestinationAirports();
+      allDestinationAirports();
     }
     else {
       const destinationAirport = document.getElementById("destinationAirport");
@@ -141,7 +141,7 @@ selectElement.addEventListener("change", function() {
 
 const destinationElement = document.getElementById("destinationAirport");
 
-async function alldestinationAirports() {
+async function allDestinationAirports() {
     let originAirport = selectElement.value;
     //console.log("Origin Airport");
     //console.log(originAirport);
