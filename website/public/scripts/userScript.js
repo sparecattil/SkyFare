@@ -41,6 +41,7 @@ selectElement.addEventListener("change", function() {
       priceRange.disabled = false;
       distance.disabled = false;
       submitAccount.disabled = false;
+      priceRangeAndDistanceOptions(selectElement.value);
     }
     else {
       const priceRange = document.getElementById("priceRange");
@@ -52,11 +53,6 @@ selectElement.addEventListener("change", function() {
     }
 
 });
-
-function priceRangeAndDistanceOptionsCall() {
-  var originAirport = "XXX"
-  priceRangeAndDistanceOptions(originAirport)
-}
 
 async function priceRangeAndDistanceOptions(originAirport) {
   const response = await fetch('/two', {

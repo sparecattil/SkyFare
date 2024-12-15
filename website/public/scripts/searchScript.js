@@ -123,23 +123,34 @@ async function allOriginAirports() {
 }
 
 selectElement.addEventListener("change", function() {
-    console.log("HERE");
+    //console.log("HERE");
     if (!(selectElement.value == "Origin Airport")) {
       const destinationAirport = document.getElementById("destinationAirport");
-      const submitFlights = document.getElementById("submitFlights");
-      submitFlights.disabled = false;
       destinationAirport.disabled = false;
       allDestinationAirports();
     }
     else {
       const destinationAirport = document.getElementById("destinationAirport");
-      const submitFlights = document.getElementById("submitFlights");
-      submitFlights.disabled = true;
       destinationAirport.disabled = true;
     }
 });
 
 const destinationElement = document.getElementById("destinationAirport");
+
+destinationElement.addEventListener("change", function() {
+    if (!(destinationElement.value == "Destination Airport")) {
+        const submitFlights = document.getElementById("submitFlights");
+        submitFlights.disabled = false;
+    }
+    else {
+        const submitFlights = document.getElementById("submitFlights");
+        submitFlights.disabled = true;
+    }
+});
+
+function checkWorking() {
+    console.log("HERE");
+}
 
 async function allDestinationAirports() {
     let originAirport = selectElement.value;
