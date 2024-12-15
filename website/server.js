@@ -145,7 +145,7 @@ app.post('/accounts', async(req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password ) {
-    return res.status(400).send('Origin not received on Server');
+    return res.status(400).send('Username and password not received on Server');
   }
 
   try {
@@ -153,7 +153,23 @@ app.post('/accounts', async(req, res) => {
     res.json({ signInStatus });
   } 
   catch (error) {
-    console.error('Error in /seven route:', error);
+    console.error('Error in /accounts route:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.post('/accountDetails', async(req, res) => {
+  const { originAirport, price, miles } = req.body;
+
+  if (!originAirport || !price || !miles) {
+    return res.status(400).send('Origin, price range, miles not received on Server');
+  }
+
+  try {
+    await setUserDetails(originAirport, price, miles);
+  } 
+  catch (error) {
+    console.error('Error in /accountDetails route:', error);
     res.status(500).send('Internal Server Error');
   }
 });
@@ -164,6 +180,49 @@ app.post('/accounts', async(req, res) => {
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 var lastUsername;
+
+async function setUserDetails(originAirport, price, miles) {
+  let client;
+
+  try {
+    // Connect to MongoDB
+    client = new MongoClient(uri);
+    await client.connect();
+    console.log("Connected to MongoDB to update user details");
+
+    // Access the database and the 'accounts' collection
+    const db = client.db(dbName);
+    const collection = db.collection("accounts");
+
+    // Update the user document with the provided details
+    const result = await collection.updateOne(
+      { username: lastUsername }, // Filter: Match the username
+      { 
+        $set: {                   // Add or update fields
+          originAirport: originAirport,
+          price: price,
+          miles: miles
+        }
+      }
+    );
+
+    // Check if the update was successful
+    if (result.matchedCount === 0) {
+      console.log("No account found for username:", lastUsername);
+    }
+
+    //console.log("User details updated successfully for:", lastUsername);
+
+  } 
+  catch (error) {
+    console.error("Error updating user details:", error);
+  } 
+  finally {
+    // Close the MongoDB connection
+    if (client) await client.close();
+  }
+}
+
 
 // Function to add or validate a user in 'accounts' collection
 async function signIn(username, password) {
