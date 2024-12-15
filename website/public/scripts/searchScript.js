@@ -1,3 +1,50 @@
+const fromOne = document.getElementById("fromOne");
+const fromTwo = document.getElementById("fromTwo");
+const fromThree = document.getElementById("fromThree");
+const fromFour = document.getElementById("fromFour");
+
+const toOne = document.getElementById("toOne");
+const toTwo = document.getElementById("toTwo");
+const toThree = document.getElementById("toThree");
+const toFour = document.getElementById("toFour");
+
+const airlineOne = document.getElementById("airlineOne");
+const airlineTwo = document.getElementById("airlineTwo");
+const airlineThree = document.getElementById("airlineThree");
+const airlineFour = document.getElementById("airlineFour");
+
+const milesOne = document.getElementById("milesOne");
+const milesTwo = document.getElementById("milesTwo");
+const milesThree = document.getElementById("milesThree");
+const milesFour = document.getElementById("milesFour");
+
+const priceOne = document.getElementById("priceOne");
+const priceTwo = document.getElementById("priceTwo");
+const priceThree = document.getElementById("priceThree");
+const priceFour = document.getElementById("priceFour");
+
+document.addEventListener('DOMContentLoaded', function() {
+    getReccomendations(); // Call the function when the DOM is fully loaded
+});
+
+async function getReccomendations() {
+    const response = await fetch('/five', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ originAirport }),
+      });
+    
+      if (response.ok) {
+          const data = await response.json();
+          
+      } 
+      else {
+        alert('Failed to generate the HTML file.');
+      }
+}
+
 // Get the canvas element
 const ctx = document.getElementById('myChart').getContext('2d');
 

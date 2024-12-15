@@ -19,7 +19,7 @@ function submitAccountInformation(){
     body: JSON.stringify({ originAirport: selectElement.value, price: priceRange.value, miles: sendMiles }),
   });
   //console.log( selectElement.value, priceRange.value, sendMiles );
-  //window.location.href = "/search.html";
+  window.location.href = "/search.html";
 }
 
 document.addEventListener('DOMContentLoaded', function() {

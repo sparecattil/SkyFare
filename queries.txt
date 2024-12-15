@@ -193,98 +193,155 @@ Query Five:
   
   Return: For each quarter match the following fields and return the best match destination
   
-  Answer: // Input values
-          const originAirportInput = "FAR"; // Example origin airport
-          const maxDistance = 180;          // Example distance
-          const inputPrice = 220;           // Example price
-
-          db.flightroutes.aggregate([
-            // Match flights with the given origin airport
-            {
-              $match: {
-                "origin.airport": originAirportInput
-              }
-            },
-            // Add calculated fields for distance and price deviation
-            {
-              $addFields: {
-                distanceDeviation: { 
-                  $abs: { 
-                    $subtract: [ 
-                      { 
-                        $toDouble: { 
-                          $cond: {
-                            if: { 
-                              $or: [
-                                { $eq: [ "$nsmiles", "" ] }, 
-                                { $eq: [ "$nsmiles", null ] }
-                              ]
-                            }, 
-                            then: 0, 
-                            else: "$nsmiles"
-                          }
-                        }
-                      },
-                      maxDistance 
-                    ] 
+  Answer: db.accounts.aggregate([
+          // Step 1: Match the user account based on the username
+          {
+            $match: {
+              username: "spatel66"  // Replace with actual username
+            }
+          },
+          // Step 2: Project necessary fields: originAirport, miles, and price
+          {
+            $project: {
+              originAirport: 1, // Get the origin airport of the user
+              miles: 1,         // Get the miles from the user
+              price: 1          // Get the price from the user
+            }
+          },
+          // Step 3: Perform a simpler $lookup to get flight routes for each quarter
+          {
+            $lookup: {
+              from: "flightroutes", // Look up the flight routes collection
+              let: { 
+                originAirportInput: "$originAirport",
+                maxDistance: { $toDouble: "$miles" },  // Convert miles to double
+                inputPrice: { $toDouble: "$price" }    // Convert price to double
+              },
+              pipeline: [
+                // Match the origin airport with the user’s origin
+                {
+                  $match: {
+                    $expr: { $eq: ["$origin.airport", "$$originAirportInput"] }
                   }
                 },
-                priceDeviation: { 
-                  $abs: { 
-                    $subtract: [ 
-                      { 
-                        $toDouble: { 
-                          $cond: {
-                            if: { 
-                              $or: [
-                                { $eq: [ "$lowestCarrier.fare", "" ] },
-                                { $eq: [ "$lowestCarrier.fare", null ] }
-                              ]
-                            },
-                            then: 0, 
-                            else: "$lowestCarrier.fare"
-                          }
-                        }
-                      },
-                      inputPrice 
-                    ] 
+                // Add calculated fields for distance and price deviation
+                {
+                  $addFields: {
+                    distanceDeviation: { 
+                      $abs: { 
+                        $subtract: [
+                          { 
+                            $toDouble: { 
+                              $cond: {
+                                if: { 
+                                  $or: [
+                                    { $eq: [ "$nsmiles", "" ] }, 
+                                    { $eq: [ "$nsmiles", null ] }
+                                  ]
+                                }, 
+                                then: 0, 
+                                else: "$nsmiles"
+                              }
+                            }
+                          },
+                          "$$maxDistance"  // Use maxDistance from the account
+                        ] 
+                      }
+                    },
+                    priceDeviation: { 
+                      $abs: { 
+                        $subtract: [
+                          { 
+                            $toDouble: { 
+                              $cond: {
+                                if: { 
+                                  $or: [
+                                    { $eq: [ "$lowestCarrier.fare", "" ] },
+                                    { $eq: [ "$lowestCarrier.fare", null ] }
+                                  ]
+                                },
+                                then: 0, 
+                                else: "$lowestCarrier.fare"
+                              }
+                            }
+                          },
+                          "$$inputPrice"  // Use inputPrice from the account
+                        ] 
+                      }
+                    }
+                  }
+                },
+                // Sort by distance deviation and price deviation
+                {
+                  $sort: {
+                    distanceDeviation: 1,
+                    priceDeviation: 1
+                  }
+                },
+                // Group by quarter and pick the best flight for each quarter
+                {
+                  $group: {
+                    _id: "$quarter",
+                    bestFlight: { $first: "$$ROOT" }
+                  }
+                },
+                // Project the desired output fields
+                {
+                  $project: {
+                    _id: 0,
+                    quarter: "$_id",
+                    origin: "$bestFlight.origin.airport",
+                    destination: "$bestFlight.destination.airport",
+                    price: "$bestFlight.lowestCarrier.fare",
+                    miles: "$bestFlight.nsmiles",
+                    airline: "$bestFlight.lowestCarrier.name"  // Include airline name
                   }
                 }
-              }
-            },
-            // Sort first by distance deviation, then by price deviation
-            {
-              $sort: {
-                distanceDeviation: 1,
-                priceDeviation: 1
-              }
-            },
-            // Group by quarter and pick the best flight for each quarter
-            {
-              $group: {
-                _id: "$quarter",
-                bestFlight: { $first: "$$ROOT" }
-              }
-            },
-            // Project the desired output fields
-            {
-              $project: {
-                _id: 0,
-                quarter: "$_id",
-                origin: "$bestFlight.origin.airport",
-                destination: "$bestFlight.destination.airport",
-                price: "$bestFlight.lowestCarrier.fare",
-                miles: "$bestFlight.nsmiles",
-                airline: "$bestFlight.lowestCarrier.name"  // Add airline name
-              }
-            },
-            // Sort results by quarter
-            {
-              $sort: {
-                quarter: 1
-              }
+              ],
+              as: "flightRoutes" // Store results of the lookup in the "flightRoutes" array
             }
-          ]);
+          },
+          // Step 4: Project the final output, including quarter and flight details
+          {
+            $project: {
+              username: 1,
+              originAirport: 1,
+              flightRoutes: 1 // Include all flightRoutes, no need to extract the first one
+            }
+          },
+          // Step 5: Unwind the flightRoutes array to get all quarters (not just the first one)
+          {
+            $unwind: {
+              path: "$flightRoutes",
+              preserveNullAndEmptyArrays: true  // This ensures we return null if there are no flights for a quarter
+            }
+          },
+          // Step 6: Group by quarter again to ensure you get one result per quarter
+          {
+            $group: {
+              _id: "$flightRoutes.quarter",
+              quarterData: { $first: "$flightRoutes" }
+            }
+          },
+          // Step 7: Project the output to get the result in the desired format
+          {
+            $project: {
+              quarter: "$_id",
+              origin: { $ifNull: ["$quarterData.origin", null] },
+              destination: { $ifNull: ["$quarterData.destination", null] },
+              price: { $ifNull: ["$quarterData.price", null] },
+              miles: { $ifNull: ["$quarterData.miles", null] },
+              airline: { $ifNull: ["$quarterData.airline", null] }
+            }
+          },
+          // Step 8: Sort by quarter (to get results in order)
+          {
+            $sort: {
+              quarter: 1
+            }
+          }
+        ]);
+
 
 
   
