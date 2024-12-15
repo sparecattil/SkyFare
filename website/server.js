@@ -118,6 +118,28 @@ app.post('/three', async(req, res) => {
   }
 });
 
+
+app.post('/seven', async(req, res) => {
+  const { originAirport, destinationAirport } = req.body;
+
+  if (!originAirport || !destinationAirport ) {
+    return res.status(400).send('Origin not received on Server');
+  }
+
+  //console.log("Received on Server: " + originAirport);
+
+  try {
+    const { originLat, originLon, destLat, destLon } = await getLatLong(originAirport, destinationAirport);
+    //console.log("Server:")
+    //console.log(routesFromOrigin);
+    res.json({ originLat, originLon, destLat, destLon });
+  } 
+  catch (error) {
+    console.error('Error in /seven route:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -322,3 +344,65 @@ async function destRoutesFromOrigin(originAirport) {
 
   return routes; // Return the array of destinations
 }
+
+async function getLatLong(originAirport, destinationAirport) {
+  var originLat;
+  var originLon;
+  var destLat;
+  var destLon;
+  try {
+    await client.connect();
+    const db = client.db(dbName);
+    const collection = db.collection('flightroutes');
+
+    // Query with deduplication using $group
+    const queryResult = await collection.aggregate([
+      {
+        $match: {
+          "origin.airport": originAirport,         // Replace with the origin airport
+          "destination.airport": destinationAirport    // Replace with the destination airport
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          origin: {
+            latitude: "$origin.latitude",
+            longitude: "$origin.longitude"
+          },
+          destination: {
+            latitude: "$destination.latitude",
+            longitude: "$destination.longitude"
+          }
+        }
+      },
+      { 
+        $limit: 1  // Only return the first matching document
+      }
+    ]).toArray();
+
+    if (queryResult.length > 0) {
+      const result = queryResult[0];
+      originLat = result.origin.latitude;
+      originLon = result.origin.longitude;
+      destLat = result.destination.latitude;
+      destLon = result.destination.longitude;
+    } 
+    else {
+      return { message: "No data found for the specified airports." };
+    }
+
+    console.log()
+  } 
+  catch (error) {
+    console.error("Error in getLatLong:", error);
+    throw error;
+  } 
+  finally {
+    await client.close();
+  }
+
+  console.log({ originLat, originLon, destLat, destLon });
+  return { originLat, originLon, destLat, destLon };
+}
+

@@ -168,3 +168,36 @@ Query Six:
   Return: Successful or Not --> If Successful Populate User Information Fields, If not then display message(GUI END)
   
   Answer:
+
+
+Query Seven: 
+
+  Input: Origin, Destination
+  
+  Return: Lat/Lon coordinates of the origin and destination
+  
+  Answer: db.flightroutes.aggregate([
+              {
+                $match: {
+                  "origin.airport": "MIA",         // Replace with the origin airport
+                  "destination.airport": "MSP"    // Replace with the destination airport
+                }
+              },
+              {
+                $project: {
+                  _id: 0,
+                  origin: {
+                    latitude: "$origin.latitude",
+                    longitude: "$origin.longitude"
+                  },
+                  destination: {
+                    latitude: "$destination.latitude",
+                    longitude: "$destination.longitude"
+                  }
+                }
+              },
+              { 
+                $limit: 1  // Only return the first matching document
+              }
+            ]);
+
