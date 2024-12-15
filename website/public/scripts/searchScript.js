@@ -149,10 +149,14 @@ destinationElement.addEventListener("change", function() {
 });
 
 function checkWorking() {
-    console.log("HERE");
+    getCoordinates();
 }
 
 async function allDestinationAirports() {
+    destinationAirports = [];
+    while (destinationElement.firstChild) {
+        destinationElement.removeChild(destinationElement.firstChild);
+    }
     let originAirport = selectElement.value;
     //console.log("Origin Airport");
     //console.log(originAirport);
@@ -177,6 +181,26 @@ async function allDestinationAirports() {
         option.textContent = airport; // Set the visible text
         destinationElement.appendChild(option); // Append the option to the select
         });
+    } 
+    else {
+      alert('Failed to generate the HTML file.');
+    }
+}
+
+async function getCoordinates() {
+    const originAirport = document.getElementById("originAirport").value;
+    const destinationAirport = document.getElementById("destinationAirport").value;
+    const response = await fetch('/seven', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ originAirport, destinationAirport }),
+    });
+
+    if (response.ok) {
+        const data = await response.json();
+        console.log(data);
     } 
     else {
       alert('Failed to generate the HTML file.');
