@@ -1,21 +1,30 @@
-function submitAccountInformation(){
-  window.location.href = "/search.html";
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  allOriginAirports(); // Call the function when the DOM is fully loaded
-});
-
 let distinctAirports = [];
 
 let fares = [];
 
 let miles = [];
 
-// Get the select element
 const selectElement = document.getElementById("homeAirport");
 const priceRange = document.getElementById("priceRange");
 const distance = document.getElementById("distance");
+
+function submitAccountInformation(){
+  let sendMiles = distance.value.slice(-6);
+
+  const response = fetch('/accountDetails', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ originAirport: selectElement.value, price: priceRange.value, miles: sendMiles }),
+  });
+  //console.log( selectElement.value, priceRange.value, sendMiles );
+  //window.location.href = "/search.html";
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  allOriginAirports(); // Call the function when the DOM is fully loaded
+});
 
 async function allOriginAirports() {
     const response = await fetch('/one');
@@ -41,19 +50,18 @@ async function allOriginAirports() {
 
 selectElement.addEventListener("change", function() {
     if (!(selectElement.value == "Home Airport")) {
-      const submitAccount = document.getElementById("submitAccount");
+      const submitDetails = document.getElementById("submitDetails");
       priceRange.disabled = false;
       distance.disabled = false;
-      submitAccount.disabled = false;
+      submitDetails.disabled = false;
       priceRangeAndDistanceOptions(selectElement.value);
     }
     else {
-      const submitAccount = document.getElementById("submitAccount");
+      const submitDetails = document.getElementById("submitDetails");
       priceRange.disabled = true;
       distance.disabled = true;
-      submitAccount.disabled = true;
+      submitDetails.disabled = true;
     }
-
 });
 
 async function priceRangeAndDistanceOptions(originAirport) {
@@ -133,4 +141,16 @@ async function priceRangeAndDistanceOptions(originAirport) {
       alert('Response from server not received');
   }
 }
+
+distance.addEventListener("change", function() {
+  if (distance.value != 'Distance' && priceRange.value != 'Price Range') {
+    const submitDetails = document.getElementById("submitDetails");
+    submitDetails.disabled = false;
+
+  }
+  else {
+    submitDetails.disabled = true;
+  }
+});
+
   
