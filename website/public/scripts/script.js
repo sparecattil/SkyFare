@@ -2,24 +2,6 @@ function testNextPage() {
     window.location.href = "/userInformation.html"
 }
 
-function allOriginAirportsCall() {
-    allOriginAirports();
-}
-
-async function allOriginAirports() {
-    const response = await fetch('/one');
-
-    if (response.ok) {
-        const data = await response.json();
-        const distinctAirports = data.distinctAirports;
-        console.log("Client:");
-        console.log(distinctAirports);
-    } 
-    else {
-        alert('Response from server not received');
-    }
-}
-
 function priceRangeAndDistanceOptionsCall() {
     var originAirport = "XXXX"
     priceRangeAndDistanceOptions(originAirport)

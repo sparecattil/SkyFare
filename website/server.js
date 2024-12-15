@@ -63,6 +63,66 @@ redis.on('error', (err) => {
   console.error('Error connecting to Redis:', err);
 });
 
+app.get('/one', async(req, res) => {
+  try {
+    const distinctAirports = await getDistinctAirports();
+    //console.log("Server:")
+    //console.log(distinctAirports);
+    res.json({ distinctAirports });
+  } 
+  catch (error) {
+    console.error('Error in /test route:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.post('/two', async(req, res) => {
+  const { originAirport } = req.body;
+
+  if (!originAirport ) {
+    return res.status(400).send('Origin not received on Server');
+  }
+
+  console.log("Received on Server: " + originAirport);
+
+  try {
+    const distinctAirports = await getDistinctAirports(); // Replace with query two function
+    console.log("Server:") // CHANGE NEEDED
+    console.log(distinctAirports); // CHANGE NEEDED
+    res.json({ distinctAirports }); // CHANGE NEEDED
+  } 
+  catch (error) {
+    console.error('Error in /two route:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.post('/three', async(req, res) => {
+  const { originAirport } = req.body;
+
+  if (!originAirport ) {
+    return res.status(400).send('Origin not received on Server');
+  }
+
+  console.log("Received on Server: " + originAirport);
+
+  try {
+    const routesFromOrigin = await destRoutesFromOrigin(originAirport);
+    console.log("Server:")
+    console.log(routesFromOrigin);
+    res.json({ routesFromOrigin });
+  } 
+  catch (error) {
+    console.error('Error in /three route:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+
 // Async function to connect and run a distinct query
 async function getDistinctAirports() {
   var distinctAirports;
@@ -97,36 +157,53 @@ async function getDistinctAirports() {
   return distinctAirports;
 }
 
-app.get('/one', async(req, res) => {
+
+async function destRoutesFromOrigin(originAirport) {
+  let routes = [];
   try {
-    const distinctAirports = await getDistinctAirports();
-    //console.log("Server:")
-    //console.log(distinctAirports);
-    res.json({ distinctAirports });
+    // Connect to MongoDB
+    await client.connect();
+    console.log('Connected to MongoDB');
+
+    const db = client.db(dbName);
+    const collection = db.collection('flightroutes');
+
+    // Run the aggregation query
+    const result = await collection.aggregate([
+      { 
+        $match: { "origin.airport": "CVG" }  // Replace "CVG" with the origin airport you are searching for
+      },
+      { 
+        $group: {
+          _id: null,  // We don't need to group by any specific field
+          destinations: { $addToSet: "$destination.airport" }  // Adds unique destination airports to the array
+        }
+      },
+      { 
+        $project: { 
+          _id: 0,  // Exclude the _id field
+          destinations: { $sortArray: { input: "$destinations", sortBy: 1 } }  // Sort the destinations array alphabetically
+        }
+      }
+    ]).toArray();
+
+    // Extract destinations from the aggregation result
+    if (result.length > 0) {
+      routes = result[0].destinations;
+    }
+
+    console.log(routes);
   } 
   catch (error) {
-    console.error('Error in /test route:', error);
-    res.status(500).send('Internal Server Error');
-  }
-});
-
-app.post('/two', async(req, res) => {
-  const { originAirport } = req.body;
-
-  if (!originAirport ) {
-    return res.status(400).send('Origin not received on Server');
-  }
-
-  console.log("Received on Server: " + originAirport);
-
-  try {
-    const distinctAirports = await getDistinctAirports(); // Replace with query two function
-    console.log("Server:") // CHANGE NEEDED
-    console.log(distinctAirports); // CHANGE NEEDED
-    res.json({ distinctAirports }); // CHANGE NEEDED
+    console.error('Error in destRoutesFromOrigin:', error);
   } 
-  catch (error) {
-    console.error('Error in /two route:', error);
-    res.status(500).send('Internal Server Error');
+  finally {
+    await client.close();
   }
-});
+
+  return routes; // Return the array of destinations
+}
+
+
+
+
