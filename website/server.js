@@ -86,10 +86,10 @@ app.post('/two', async(req, res) => {
   console.log("Received on Server: " + originAirport);
 
   try {
-    const distinctAirports = await getDistinctAirports(); // Replace with query two function
-    console.log("Server:") // CHANGE NEEDED
-    console.log(distinctAirports); // CHANGE NEEDED
-    res.json({ distinctAirports }); // CHANGE NEEDED
+    const { maxFare, minFare, maxMiles, minMiles } = await priceRangeAndDistance(originAirport); // Replace with query two function
+    //console.log("Server:") 
+    //console.log({ maxFare, minFare, maxMiles, minMiles });
+    res.json({ maxFare, minFare, maxMiles, minMiles });
   } 
   catch (error) {
     console.error('Error in /two route:', error);
@@ -104,7 +104,7 @@ app.post('/three', async(req, res) => {
     return res.status(400).send('Origin not received on Server');
   }
 
-  console.log("Received on Server: " + originAirport);
+  //console.log("Received on Server: " + originAirport);
 
   try {
     const routesFromOrigin = await destRoutesFromOrigin(originAirport);
@@ -157,6 +157,125 @@ async function getDistinctAirports() {
   return distinctAirports;
 }
 
+async function priceRangeAndDistance(originAirport) {
+  let result = {};
+  var maxFare;
+  var minFare;
+  var maxMiles;
+  var minMiles;
+  try {
+    // Connect to MongoDB
+    await client.connect();
+    console.log('Connected to MongoDB');
+
+    const db = client.db(dbName);
+    const collection = db.collection('flightroutes');
+
+    // Run the aggregation query
+    const aggregationPipeline = [
+      { 
+        $match: { "origin.airport": originAirport }  // Match the provided origin airport
+      },
+      {
+        $addFields: {
+          fares: [
+            {
+              $toDouble: {
+                $ifNull: [
+                  { 
+                    $cond: {
+                      if: { $or: [{ $eq: [{ $trim: { input: "$averageFare" } }, ""] }, { $eq: ["$averageFare", null] }] },
+                      then: null,
+                      else: "$averageFare"
+                    }
+                  },
+                  null
+                ]
+              }
+            },
+            {
+              $toDouble: {
+                $ifNull: [
+                  { 
+                    $cond: {
+                      if: { $or: [{ $eq: [{ $trim: { input: "$lowestCarrier.fare" } }, ""] }, { $eq: ["$lowestCarrier.fare", null] }] },
+                      then: null,
+                      else: "$lowestCarrier.fare"
+                    }
+                  },
+                  null
+                ]
+              }
+            },
+            {
+              $toDouble: {
+                $ifNull: [
+                  { 
+                    $cond: {
+                      if: { $or: [{ $eq: [{ $trim: { input: "$largestCarrier.fare" } }, ""] }, { $eq: ["$largestCarrier.fare", null] }] },
+                      then: null,
+                      else: "$largestCarrier.fare"
+                    }
+                  },
+                  null
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        $unwind: "$fares"
+      },
+      {
+        $group: {
+          _id: "$origin.airport",  // Group by origin airport
+          maxFare: { $max: "$fares" },
+          minFare: { $min: "$fares" },
+          maxMiles: { $max: "$nsmiles" },
+          minMiles: { $min: "$nsmiles" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          originAirport: "$_id",
+          priceRange: {
+            maxFare: "$maxFare",
+            minFare: "$minFare"
+          },
+          distanceOptions: {
+            maxMiles: "$maxMiles",
+            minMiles: "$minMiles"
+          }
+        }
+      }
+    ];
+
+    const queryResult = await collection.aggregate(aggregationPipeline).toArray();
+
+    // Format the result for clarity
+    if (queryResult.length > 0) {
+      result = queryResult[0]; // Take the first (and only) result
+      maxFare = result['priceRange']['maxFare'];
+      minFare = result['priceRange']['minFare'];
+      maxMiles = result['distanceOptions']['maxMiles'];
+      minMiles = result['distanceOptions']['minMiles'];
+    } 
+    else {
+      result = { message: "No data found for the specified origin airport." };
+    }
+  } 
+  catch (error) {
+    console.error('Error in priceRangeAndDistance:', error);
+    throw error; // Propagate the error
+  } 
+  finally {
+    await client.close();
+  }
+
+  return { maxFare, minFare, maxMiles, minMiles };
+}
 
 async function destRoutesFromOrigin(originAirport) {
   let routes = [];
@@ -203,7 +322,3 @@ async function destRoutesFromOrigin(originAirport) {
 
   return routes; // Return the array of destinations
 }
-
-
-
-

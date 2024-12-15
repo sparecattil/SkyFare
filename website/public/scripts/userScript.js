@@ -65,9 +65,9 @@ async function priceRangeAndDistanceOptions(originAirport) {
 
   if (response.ok) {
       const data = await response.json();
-      const messageData = data.distinctAirports; // Adjust according to data received
+      const { maxFare, minFare, maxMiles, minMiles } = data; // Adjust according to data received
       console.log("Client:");
-      console.log(messageData);
+      console.log({ maxFare, minFare, maxMiles, minMiles });
   } 
   else {
       alert('Response from server not received');
