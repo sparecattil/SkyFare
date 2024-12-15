@@ -196,7 +196,7 @@ Query Five:
   Answer: // Input values
           const originAirportInput = "FAR"; // Example origin airport
           const maxDistance = 180;          // Example distance
-          const inputPrice = 220;            // Example price
+          const inputPrice = 220;           // Example price
 
           db.flightroutes.aggregate([
             // Match flights with the given origin airport
@@ -274,7 +274,8 @@ Query Five:
                 origin: "$bestFlight.origin.airport",
                 destination: "$bestFlight.destination.airport",
                 price: "$bestFlight.lowestCarrier.fare",
-                miles: "$bestFlight.nsmiles"
+                miles: "$bestFlight.nsmiles",
+                airline: "$bestFlight.lowestCarrier.name"  // Add airline name
               }
             },
             // Sort results by quarter
@@ -284,6 +285,7 @@ Query Five:
               }
             }
           ]);
+
 
   
 Query Six: 

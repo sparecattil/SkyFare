@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Antonio:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
 
 * {
@@ -31,13 +32,14 @@ body {
 }
 
 .header h1 {
-  letter-spacing: 12px;
+  letter-spacing: 10px;
   font-size: 100px;
 }
 
 .header p{
+  font-family: 'Roboto', sans-serif;
   font-size: 16px;
-  letter-spacing: 5px;
+  letter-spacing: 10px;
   
 }
 
@@ -229,21 +231,23 @@ body {
 }
 
 .reccomendations h1 {
+  font-family: 'Roboto', sans-serif;
   color: white;
-  font-size: 40px;
+  font-size: 25px;
   letter-spacing: 2px;
 }
 
 .reccomendations p {
+  font-family: 'Roboto', sans-serif;
   color: white;
-  font-size: 18px;
+  font-size: 15px;
   line-height: 5px;
 }
 
 .quarterOne, .quarterTwo, .quarterThree, .quarterFour {
-  background-color: grey;
-  opacity: 90%;
-  border-radius: 30px;
+  background-color: black;
+  opacity: 30%;
+  border-radius: 15px;
 }
 
 .flightSearchMap {
