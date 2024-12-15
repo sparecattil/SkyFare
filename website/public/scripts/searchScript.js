@@ -95,6 +95,8 @@ allOriginAirports(); // Call the function when the DOM is fully loaded
 
 let distinctAirports = [];
 
+let destinationAirports = [];
+
 // Get the select element
 const selectElement = document.getElementById("originAirport");
 
@@ -104,8 +106,8 @@ async function allOriginAirports() {
     if (response.ok) {
         const data = await response.json();
         distinctAirports = data.distinctAirports;
-        console.log("Client:");
-        console.log(distinctAirports);
+        //console.log("Client:");
+        //console.log(distinctAirports);
 
         // Loop through the airports array and create option elements
         distinctAirports.forEach(airport => {
@@ -117,5 +119,55 @@ async function allOriginAirports() {
     } 
     else {
         alert('Response from server not received');
+    }
+}
+
+selectElement.addEventListener("change", function() {
+    console.log("HERE");
+    if (!(selectElement.value == "Origin Airport")) {
+      const destinationAirport = document.getElementById("destinationAirport");
+      const submitFlights = document.getElementById("submitFlights");
+      submitFlights.disabled = false;
+      destinationAirport.disabled = false;
+      alldestinationAirports();
+    }
+    else {
+      const destinationAirport = document.getElementById("destinationAirport");
+      const submitFlights = document.getElementById("submitFlights");
+      submitFlights.disabled = true;
+      destinationAirport.disabled = true;
+    }
+});
+
+const destinationElement = document.getElementById("destinationAirport");
+
+async function alldestinationAirports() {
+    let originAirport = selectElement.value;
+    //console.log("Origin Airport");
+    //console.log(originAirport);
+    const response = await fetch('/three', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ originAirport }),
+    });
+  
+    if (response.ok) {
+        const data = await response.json();
+        destinationAirports = data.routesFromOrigin;
+        //console.log("Client:");
+        //console.log(destinationAirports);
+
+        // Loop through the airports array and create option elements
+        destinationAirports.forEach(airport => {
+        const option = document.createElement("option");
+        option.value = airport; // Set the value attribute
+        option.textContent = airport; // Set the visible text
+        destinationElement.appendChild(option); // Append the option to the select
+        });
+    } 
+    else {
+      alert('Failed to generate the HTML file.');
     }
 }

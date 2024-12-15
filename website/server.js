@@ -108,8 +108,8 @@ app.post('/three', async(req, res) => {
 
   try {
     const routesFromOrigin = await destRoutesFromOrigin(originAirport);
-    console.log("Server:")
-    console.log(routesFromOrigin);
+    //console.log("Server:")
+    //console.log(routesFromOrigin);
     res.json({ routesFromOrigin });
   } 
   catch (error) {
@@ -171,7 +171,7 @@ async function destRoutesFromOrigin(originAirport) {
     // Run the aggregation query
     const result = await collection.aggregate([
       { 
-        $match: { "origin.airport": "CVG" }  // Replace "CVG" with the origin airport you are searching for
+        $match: { "origin.airport": originAirport }  // Replace "CVG" with the origin airport you are searching for
       },
       { 
         $group: {
@@ -192,7 +192,7 @@ async function destRoutesFromOrigin(originAirport) {
       routes = result[0].destinations;
     }
 
-    console.log(routes);
+    //console.log(routes);
   } 
   catch (error) {
     console.error('Error in destRoutesFromOrigin:', error);

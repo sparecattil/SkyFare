@@ -3,7 +3,7 @@ function testNextPage() {
 }
 
 function priceRangeAndDistanceOptionsCall() {
-    var originAirport = "XXXX"
+    var originAirport = "XXX"
     priceRangeAndDistanceOptions(originAirport)
 }
 
