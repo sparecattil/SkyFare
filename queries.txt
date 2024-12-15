@@ -13,84 +13,118 @@ Query Two:
   Return: Price Range and Distance Options
   
   Answer:  db.flightroutes.aggregate([
-              { 
-                $match: { "origin.airport": "XXX" }  // Replace "CVG" with the desired origin airport
-              },
-              {
-                $addFields: {
-                  fares: [
-                    {
-                      $toDouble: {
-                        $ifNull: [
-                          { 
-                            $cond: {
-                              if: { $or: [{ $eq: [{ $trim: { input: "$averageFare" } }, ""] }, { $eq: ["$averageFare", null] }] },
-                              then: null,  // Convert empty strings or null to null
-                              else: "$averageFare"
-                            }
-                          },
-                          null  // Default to null for invalid values
-                        ]
-                      }
-                    },
-                    {
-                      $toDouble: {
-                        $ifNull: [
-                          { 
-                            $cond: {
-                              if: { $or: [{ $eq: [{ $trim: { input: "$lowestCarrier.fare" } }, ""] }, { $eq: ["$lowestCarrier.fare", null] }] },
-                              then: null,
-                              else: "$lowestCarrier.fare"
-                            }
-                          },
-                          null
-                        ]
-                      }
-                    },
-                    {
-                      $toDouble: {
-                        $ifNull: [
-                          { 
-                            $cond: {
-                              if: { $or: [{ $eq: [{ $trim: { input: "$largestCarrier.fare" } }, ""] }, { $eq: ["$largestCarrier.fare", null] }] },
-                              then: null,
-                              else: "$largestCarrier.fare"
-                            }
-                          },
-                          null
-                        ]
-                      }
+            {
+              $match: { "origin.airport": "XXX" }  // Replace "STL" with the desired origin airport
+            },
+            {
+              $addFields: {
+                fares: [
+                  {
+                    $toDouble: {
+                      $ifNull: [
+                        { 
+                          $cond: {
+                            if: { 
+                              $or: [
+                                { $eq: [{ $trim: { input: "$averageFare" } }, ""] }, 
+                                { $eq: ["$averageFare", null] }
+                              ]
+                            },
+                            then: null,
+                            else: "$averageFare"
+                          }
+                        },
+                        null  // Default to null for invalid values
+                      ]
                     }
-                  ]
-                }
-              },
-              {
-                $unwind: "$fares"
-              },
-              {
-                $group: {
-                  _id: "$origin.airport",  // Group by origin airport
-                  maxFare: { $max: "$fares" },
-                  minFare: { $min: "$fares" },
-                  maxMiles: { $max: "$nsmiles" },
-                  minMiles: { $min: "$nsmiles" }
-                }
-              },
-              {
-                $project: {
-                  _id: 0,
-                  originAirport: "$_id",
-                  priceRange: {
-                    maxFare: "$maxFare",
-                    minFare: "$minFare"
                   },
-                  distanceOptions: {
-                    maxMiles: "$maxMiles",
-                    minMiles: "$minMiles"
+                  {
+                    $toDouble: {
+                      $ifNull: [
+                        { 
+                          $cond: {
+                            if: { 
+                              $or: [
+                                { $eq: [{ $trim: { input: "$lowestCarrier.fare" } }, ""] }, 
+                                { $eq: ["$lowestCarrier.fare", null] }
+                              ]
+                            },
+                            then: null,
+                            else: "$lowestCarrier.fare"
+                          }
+                        },
+                        null
+                      ]
+                    }
+                  },
+                  {
+                    $toDouble: {
+                      $ifNull: [
+                        { 
+                          $cond: {
+                            if: { 
+                              $or: [
+                                { $eq: [{ $trim: { input: "$largestCarrier.fare" } }, ""] }, 
+                                { $eq: ["$largestCarrier.fare", null] }
+                              ]
+                            },
+                            then: null,
+                            else: "$largestCarrier.fare"
+                          }
+                        },
+                        null
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              $unwind: "$fares"
+            },
+            {
+              $group: {
+                _id: "$origin.airport",  // Group by origin airport
+                maxFare: { $max: "$fares" },
+                minFare: { $min: "$fares" },
+                maxMiles: { $max: { $toDouble: "$nsmiles" } },  // Ensure miles are treated as numbers
+                minMiles: { $min: { $toDouble: "$nsmiles" } }
+              }
+            },
+            {
+              $addFields: {
+                // Adjust miles only if maxMiles is smaller than minMiles
+                maxMiles: {
+                  $cond: {
+                    if: { $lt: ["$maxMiles", "$minMiles"] },  // If maxMiles < minMiles
+                    then: "$minMiles",  // Swap the values
+                    else: "$maxMiles"
+                  }
+                },
+                minMiles: {
+                  $cond: {
+                    if: { $lt: ["$maxMiles", "$minMiles"] },  // If maxMiles < minMiles
+                    then: "$maxMiles",  // Swap the values
+                    else: "$minMiles"
                   }
                 }
               }
-            ])
+            },
+            {
+              $project: {
+                _id: 0,
+                originAirport: "$_id",
+                priceRange: {
+                  maxFare: "$maxFare",
+                  minFare: "$minFare"
+                },
+                distanceOptions: {
+                  maxMiles: "$maxMiles",  // Use adjusted maxMiles
+                  minMiles: "$minMiles"   // Use adjusted minMiles
+                }
+              }
+            }
+          ])
 
   
 Query Three: 
@@ -179,8 +213,8 @@ Query Seven:
   Answer: db.flightroutes.aggregate([
               {
                 $match: {
-                  "origin.airport": "MIA",         // Replace with the origin airport
-                  "destination.airport": "MSP"    // Replace with the destination airport
+                  "origin.airport": "XXX",         // Replace with the origin airport
+                  "destination.airport": "XXX"    // Replace with the destination airport
                 }
               },
               {
