@@ -175,6 +175,12 @@ async function allDestinationAirports() {
         //console.log(destinationAirports);
 
         // Loop through the airports array and create option elements
+
+        const option = document.createElement("option");
+        option.value = "Desitnation Airport"; // Set the value attribute
+        option.textContent = "Desitnation Airport"; // Set the visible text
+        destinationElement.appendChild(option); // Append the option to the select
+
         destinationAirports.forEach(airport => {
         const option = document.createElement("option");
         option.value = airport; // Set the value attribute

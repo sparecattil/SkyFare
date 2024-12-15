@@ -277,3 +277,6 @@ body {
   opacity: 50%;
 }
 
+.password.error::placeholder {
+  color: red;
+}
