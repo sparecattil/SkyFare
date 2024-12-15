@@ -123,7 +123,7 @@ app.post('/seven', async(req, res) => {
   const { originAirport, destinationAirport } = req.body;
 
   if (!originAirport || !destinationAirport ) {
-    return res.status(400).send('Origin not received on Server');
+    return res.status(400).send('Origin and destination not received on Server');
   }
 
   //console.log("Received on Server: " + originAirport);
@@ -140,10 +140,97 @@ app.post('/seven', async(req, res) => {
   }
 });
 
+
+app.post('/accounts', async(req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password ) {
+    return res.status(400).send('Origin not received on Server');
+  }
+
+  try {
+    const signInStatus = await signIn(username, password);
+    res.json({ signInStatus });
+  } 
+  catch (error) {
+    console.error('Error in /seven route:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
+
+var lastUsername;
+
+// Function to add or validate a user in 'accounts' collection
+async function signIn(username, password) {
+  lastUsername = username;
+  let client;
+  var signInStatus;
+  try {
+    // Connect to MongoDB
+    client = new MongoClient(uri);
+    await client.connect();
+    console.log("Connected to MongoDB");
+
+    // Access the database and collection
+    const db = client.db(dbName);
+    const collection = db.collection("accounts");
+
+    // Ensure the 'accounts' collection exists
+    const collections = await db.listCollections({}, { nameOnly: true }).toArray();
+    const collectionNames = collections.map((col) => col.name);
+    if (!collectionNames.includes("accounts")) {
+      await db.createCollection("accounts");
+      console.log("Collection 'accounts' has been created.");
+      await collection.createIndex({ username: 1 }, { unique: true });
+      console.log("Unique index on 'username' has been created.");
+    }
+
+    // Check if the user already exists
+    const existingUser = await collection.findOne({ username });
+
+    if (existingUser) {
+      // User exists, validate the password
+      if (existingUser.password === password) {
+        console.log("Password matches for existing user:", username);
+        signInStatus = true;
+      } 
+      else {
+        console.log("Password does not match for user:", username);
+        signInStatus = false;
+      }
+    } 
+    else {
+      // Insert the new user
+      await collection.insertOne({ username, password });
+      console.log("New user added:", username);
+      signInStatus = true;
+    }
+  } 
+  catch (error) {
+    console.error("Error handling user account:", error);
+    signInStatus = false;
+  } 
+  finally {
+    // Close the connection
+    if (client) await client.close();
+  }
+
+  //console.log(signInStatus);
+  return signInStatus;
+}
+
+// async function test() {
+//   var testStatus = await signIn("Shiv","123abc");
+//   console.log("First " + testStatus);
+//   testStatus = await signIn("Shiv","123aBc");
+//   console.log("Second " + testStatus);
+// }
+
 
 // Async function to connect and run a distinct query
 async function getDistinctAirports() {
