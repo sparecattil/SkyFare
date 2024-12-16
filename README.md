@@ -37,10 +37,17 @@ npm install mongodb
 ```bash
 npm install ioredis
 ```
-## Other required
+## Install Redis Dependency
+
+Run the following command to install the required Redis packages:
+
 ```bash
 pip install redis
 ```
+## Install MongoDB Dependency
+
+Run the following command to install the required MongoDB packages:
+
 ```bash
 pip install pymongo
 ```
