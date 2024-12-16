@@ -57,7 +57,7 @@ npm install mongodb
 npm install ioredis
 ```
 
-## Run Redis-Stack Server
+## 7. Run Redis-Stack Server
 
 Run a local instance of the Redis-Stack Server and/or Client
 
