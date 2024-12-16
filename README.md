@@ -1,7 +1,9 @@
 # SkyFare
 
 ### Versions
+
 Node - 23.3.0
+
 Python - 3.12.6
 
 ## Project Setup Instructions
