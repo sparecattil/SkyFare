@@ -139,7 +139,7 @@ app.post('/four', async(req, res) => {
 
 app.get('/five', async(req, res) => {
   try {
-    const recommendations = await getUserReccomendations();
+    const recommendations = await getUserRecommendations();
     //console.log("Server:")
     //console.log(distinctAirports);
     res.json({ recommendations });
