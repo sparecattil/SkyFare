@@ -23,22 +23,122 @@ const priceTwo = document.getElementById("priceTwo");
 const priceThree = document.getElementById("priceThree");
 const priceFour = document.getElementById("priceFour");
 
+let airlineCompany = {  "AA": "American Airlines",
+                        "AS": "Alaska Airlines  ",
+                        "DL": "Delta Air Lines  ",
+                        "EV": "Envoy Air        ",
+                        "F9": "Frontier Airlines",
+                        "HA": "Hawaiian Airlines",
+                        "MQ": "Envoy Air        ",
+                        "NW": "Northwest Airlines",
+                        "NK": "Spirit Airlines  ",
+                        "OO": "SkyWest Airlines ",
+                        "UA": "United Airlines  ",
+                        "WN": "Southwest Airlines",
+                        "B6": "JetBlue Airways  ",
+                        "G4": "Allegiant Air    ",
+                        "P7": "Piedmont Airlines",
+                        "YV": "Mesa Air Group   ",
+                        "9X": "Compass Airlines ",
+                        "ZK": "Trans States Airlines",
+                        "QX": "Horizon Air      ",
+                        "I5": "Sun Country Airlines",
+                        "M7": "Mesa Air Group   ",
+                        "P8": "Piedmont Airlines"
+                    };
+
 document.addEventListener('DOMContentLoaded', function() {
     getReccomendations(); // Call the function when the DOM is fully loaded
 });
 
 async function getReccomendations() {
-    // const response = await fetch('/five');
-    
-    //   if (response.ok) {
-    //      const data = await response.json();
-    //      console.log(data);
+    let company;
 
-    //   } 
-    //   else {
-    //     alert('Failed to generate the HTML file.');
-    //   }
-}
+    const response = await fetch('/five');
+
+      if (response.ok) {
+         const data = await response.json();
+         console.log(data);
+
+         fromOne.innerHTML = "  ";
+         toOne.innerHTML = "  ";
+         airlineOne.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO OPTIONS";
+         airlineOne.style.fontWeight = "bold";
+         milesOne.innerHTML = "  ";
+         priceOne.innerHTML = "<br>  <br>  <br> <br> ";
+
+         fromTwo.innerHTML = "  ";
+         toTwo.innerHTML = "  ";
+         airlineTwo.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO OPTIONS";
+         airlineTwo.style.fontWeight = "bold";
+         milesTwo.innerHTML = "  ";
+         priceTwo.innerHTML = "<br>  <br>  <br> <br> ";
+
+         fromThree.innerHTML = "  ";
+         toThree.innerHTML = "  ";
+         airlineThree.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO OPTIONS";
+         airlineThree.style.fontWeight = "bold";
+         milesThree.innerHTML = "  ";
+         priceThree.innerHTML = "<br>  <br>  <br> <br> ";
+
+
+         fromFour.innerHTML = "  ";
+         toFour.innerHTML = "  ";
+         airlineFour.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO OPTIONS";
+         airlineFour.style.fontWeight = "bold";
+         milesFour.innerHTML = "  ";
+         priceFour.innerHTML = "<br>  <br>  <br> <br> ";
+        
+
+         for (x in data.recommendations) {
+
+            if (data.recommendations[x].airline in airlineCompany){
+                company = airlineCompany[data.recommendations[x].airline];
+            }
+            else {
+                company = data.recommendations[x].airline; 
+                console
+            }
+
+            if (data.recommendations[x].quarter == '1') {
+                fromOne.innerHTML = "FROM: " + data.recommendations[x].origin;
+                toOne.innerHTML = "TO: " + data.recommendations[x].destination;
+                airlineOne.innerHTML = "AIRLINE: " + company;
+                airlineOne.style.fontWeight = "normal";
+                milesOne.innerHTML = "MILES: " + data.recommendations[x].miles;
+                priceOne.innerHTML = "PRICE: " + data.recommendations[x].price;
+            }
+            else if (data.recommendations[x].quarter == '2') {
+                fromTwo.innerHTML = "FROM: " + data.recommendations[x].origin;
+                toTwo.innerHTML = "TO: " + data.recommendations[x].destination;
+                airlineTwo.innerHTML = "AIRLINE: " + company;
+                airlineTwo.style.fontWeight = "normal";
+                milesTwo.innerHTML = "MILES: " + data.recommendations[x].miles;
+                priceTwo.innerHTML = "PRICE: " + data.recommendations[x].price;
+            }
+            else if (data.recommendations[x].quarter == '3') {
+                fromThree.innerHTML = "FROM: " + data.recommendations[x].origin;
+                toThree.innerHTML = "TO: " + data.recommendations[x].destination;
+                airlineThree.innerHTML = "AIRLINE: " + company
+                airlineThree.style.fontWeight = "normal";
+                milesThree.innerHTML = "MILES: " + data.recommendations[x].miles;
+                priceThree.innerHTML = "PRICE: " + data.recommendations[x].price;
+            }
+            else if (data.recommendations[x].quarter == '4') {
+                fromFour.innerHTML = "FROM: " + data.recommendations[x].origin;
+                toFour.innerHTML = "DESTINATION: " + data.recommendations[x].destination;
+                airlineFour.innerHTML = "AIRLINE: " + company;
+                airlineFour.style.fontWeight = "normal";
+                milesFour.innerHTML = "MILES: " + data.recommendations[x].miles;
+                priceFour.innerHTML = "PRICE: " + data.recommendations[x].price;
+            }
+         }
+
+      } 
+      else {
+        alert('Failed to generate the HTML file.');
+      }
+    }
 
 // Get the canvas element
 const ctx = document.getElementById('myChart').getContext('2d');
@@ -222,7 +322,7 @@ async function getSearchResults() {
         myChart.data.datasets[3].data = [];
 
         const data = await response.json();
-        console.log(data);
+        //console.log(data);
 
         for (x in data.graphData) {
             if (data.graphData[x].quarter == '1') {
