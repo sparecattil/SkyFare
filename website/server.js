@@ -619,7 +619,8 @@ async function getLatLong(originAirport, destinationAirport) {
 
 async function getGraphData(originAirport, destinationAirport) {
   let client;
-  var queryResult;
+  let queryResult;
+
   try {
     // Connect to MongoDB
     client = new MongoClient(uri); // Replace 'uri' with your MongoDB connection string
@@ -630,51 +631,50 @@ async function getGraphData(originAirport, destinationAirport) {
     const db = client.db(dbName); // Replace 'dbName' with your database name
     const collection = db.collection("flightroutes"); // Collection name
 
-    // Run the aggregation pipeline
+    // Run the updated aggregation pipeline
     queryResult = await collection.aggregate([
       {
         $match: {
-          "origin.airport": originAirport,      // Replace with the origin airport
-          "destination.airport": destinationAirport // Replace with the destination airport
+          $text: { $search: `${originAirport} ${destinationAirport}` } // Text search for origin and destination
         }
       },
       {
         $addFields: {
           averagePrice: {
             $avg: [
-              { $convert: { 
-                input: "$largestCarrier.fare", 
-                to: "double", 
-                onError: 'null', 
-                onNull: 'null' 
-              } 
-            },
-            {   $convert: { 
-                input: "$lowestCarrier.fare", 
-                to: "double", 
-                onError: 'null', 
-                onNull: 'null' 
-              } 
-            }
+              { 
+                $convert: { 
+                  input: "$largestCarrier.fare", 
+                  to: "double", 
+                  onError: null, 
+                  onNull: null 
+                } 
+              },
+              { 
+                $convert: { 
+                  input: "$lowestCarrier.fare", 
+                  to: "double", 
+                  onError: null, 
+                  onNull: null 
+                } 
+              }
             ]
           }
         }
       },
       {
         $group: {
-          _id: { year: "$year", quarter: "$quarter" },
-          avgPrice: { $avg: "$averagePrice" },
-          year: { $first: "$year" },
-          quarter: { $first: "$quarter" }
+          _id: { airline: "$largestCarrier.name", year: "$year", quarter: "$quarter" },
+          avgPrice: { $avg: "$averagePrice" }
         }
       },
       {
         $group: {
-          _id: "$quarter", // Group by quarter
+          _id: { airline: "$_id.airline", quarter: "$_id.quarter" },
           years: {
-            $push: { // Collect data for each year in the same quarter
-              year: "$year",
-              averagePrice: "$avgPrice"
+            $push: {
+              year: "$_id.year",
+              avgPrice: "$avgPrice"
             }
           }
         }
@@ -682,33 +682,16 @@ async function getGraphData(originAirport, destinationAirport) {
       {
         $project: {
           _id: 0,
-          quarter: "$_id",
+          airline: "$_id.airline",
+          quarter: "$_id.quarter",
           years: 1
         }
       },
       {
-        $addFields: {
-          yearsFormatted: {
-            $arrayToObject: { // Convert the array of years into an object with year as the key
-              $map: {
-                input: "$years",
-                as: "yearData",
-                in: [
-                  { $concat: [{ $toString: "$$yearData.year" }] }, // Key is the year
-                  "$$yearData.averagePrice" // Value is the average price
-                ]
-              }
-            }
-          }
-        }
-      },
-      {
-        $project: {
-          quarter: 1,
-          yearsFormatted: 1
-        }
+        $sort: { quarter: 1, airline: 1 } // Sort by quarter and airline
       }
     ]).toArray();
+
   } 
   catch (error) {
     console.error("Error in getGraphData:", error);
@@ -718,8 +701,10 @@ async function getGraphData(originAirport, destinationAirport) {
     // Ensure MongoDB connection is closed
     if (client) await client.close();
   }
+
   return queryResult; // Return the formatted graph data
 }
+
 
 async function getUserRecommendations() {
   let client;
