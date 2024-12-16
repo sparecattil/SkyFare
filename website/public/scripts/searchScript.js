@@ -86,8 +86,8 @@ const myChart = new Chart(ctx, {
             {
                 label: 'Quarter 4',  // Third line
                 data: generateDataForYears(),
-                backgroundColor: 'rgba(255, 206, 86, 0.2)',
-                borderColor: 'rgba(30, 67, 86, 1)',
+                backgroundColor: 'rgba(200, 100, 255, 0.2)',
+                borderColor: 'rgba(200, 100, 255, 1)',
                 borderWidth: 1
             },
             // You can add more datasets here for additional lines
@@ -214,10 +214,32 @@ async function getSearchResults() {
         },
         body: JSON.stringify({ originAirport: selectElement.value, destinationAirport: destinationElement.value }),
       });
-
+      console.log(response);
       if (response.ok) {
+
+        myChart.data.datasets[0].data = [];
+        myChart.data.datasets[1].data = [];
+        myChart.data.datasets[2].data = [];
+        myChart.data.datasets[3].data = [];
+
         const data = await response.json();
         console.log(data);
+
+        for (x in data.graphData) {
+            if (data.graphData[x].quarter == '1') {
+                myChart.data.datasets[0].data = data.graphData[x].yearsFormatted;
+            }
+            else if (data.graphData[x].quarter == '2') {
+                myChart.data.datasets[1].data = data.graphData[x].yearsFormatted;
+            }
+            else if (data.graphData[x].quarter == '3') {
+                myChart.data.datasets[2].data = data.graphData[x].yearsFormatted;
+            }
+            else if (data.graphData[x].quarter == '4') {
+                myChart.data.datasets[3].data = data.graphData[x].yearsFormatted;
+            }
+        }
+        myChart.update();
         
       }
       else {

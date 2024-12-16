@@ -629,8 +629,20 @@ async function getGraphData(originAirport, destinationAirport) {
         $addFields: {
           averagePrice: {
             $avg: [
-              { $toDouble: { $ifNull: ["$largestCarrier.fare", 0] } },
-              { $toDouble: { $ifNull: ["$lowestCarrier.fare", 0] } }
+              { $convert: { 
+                input: "$largestCarrier.fare", 
+                to: "double", 
+                onError: 'null', 
+                onNull: 'null' 
+              } 
+            },
+            {   $convert: { 
+                input: "$lowestCarrier.fare", 
+                to: "double", 
+                onError: 'null', 
+                onNull: 'null' 
+              } 
+            }
             ]
           }
         }
