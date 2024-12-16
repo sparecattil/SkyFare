@@ -119,14 +119,31 @@ app.post('/three', async(req, res) => {
 });
 
 
-app.post('/seven', async(req, res) => {
+app.post('/four', async(req, res) => {
   const { originAirport, destinationAirport } = req.body;
 
   if (!originAirport || !destinationAirport ) {
     return res.status(400).send('Origin and destination not received on Server');
   }
 
-  //console.log("Received on Server: " + originAirport);
+
+  try {
+    const graphData = await getGraphData(originAirport, destinationAirport);
+    res.json({ graphData });
+  } 
+  catch (error) {
+    console.error('Error in /three route:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+app.post('/seven', async(req, res) => {
+  const { originAirport, destinationAirport } = req.body;
+
+  if (!originAirport || !destinationAirport ) {
+    return res.status(400).send('Origin and destination not received on Server');
+  }
 
   try {
     const { originLat, originLon, destLat, destLon } = await getLatLong(originAirport, destinationAirport);
@@ -587,4 +604,94 @@ async function getLatLong(originAirport, destinationAirport) {
   return { originLat, originLon, destLat, destLon };
 }
 
+async function getGraphData(originAirport, destinationAirport) {
+  let client;
+  var queryResult;
+  try {
+    // Connect to MongoDB
+    client = new MongoClient(uri); // Replace 'uri' with your MongoDB connection string
+    await client.connect();
+    console.log("Connected to MongoDB for graph data");
 
+    // Access the database and collection
+    const db = client.db(dbName); // Replace 'dbName' with your database name
+    const collection = db.collection("flightroutes"); // Collection name
+
+    // Run the aggregation pipeline
+    queryResult = await collection.aggregate([
+      {
+        $match: {
+          "origin.airport": originAirport,      // Replace with the origin airport
+          "destination.airport": destinationAirport // Replace with the destination airport
+        }
+      },
+      {
+        $addFields: {
+          averagePrice: {
+            $avg: [
+              { $toDouble: { $ifNull: ["$largestCarrier.fare", 0] } },
+              { $toDouble: { $ifNull: ["$lowestCarrier.fare", 0] } }
+            ]
+          }
+        }
+      },
+      {
+        $group: {
+          _id: { year: "$year", quarter: "$quarter" },
+          avgPrice: { $avg: "$averagePrice" },
+          year: { $first: "$year" },
+          quarter: { $first: "$quarter" }
+        }
+      },
+      {
+        $group: {
+          _id: "$quarter", // Group by quarter
+          years: {
+            $push: { // Collect data for each year in the same quarter
+              year: "$year",
+              averagePrice: "$avgPrice"
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          quarter: "$_id",
+          years: 1
+        }
+      },
+      {
+        $addFields: {
+          yearsFormatted: {
+            $arrayToObject: { // Convert the array of years into an object with year as the key
+              $map: {
+                input: "$years",
+                as: "yearData",
+                in: [
+                  { $concat: [{ $toString: "$$yearData.year" }] }, // Key is the year
+                  "$$yearData.averagePrice" // Value is the average price
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          quarter: 1,
+          yearsFormatted: 1
+        }
+      }
+    ]).toArray();
+  } 
+  catch (error) {
+    console.error("Error in getGraphData:", error);
+    throw error;
+  } 
+  finally {
+    // Ensure MongoDB connection is closed
+    if (client) await client.close();
+  }
+  return queryResult; // Return the formatted graph data
+}
