@@ -1,21 +1,24 @@
+####################################################################
+# Contributors: Sebastian Parecattil, Shiv Patel
+# Versions: Python - 3.12.6
+####################################################################
+
 from pymongo import MongoClient
 import redis
-import re  # regular expressions
-import json
 
 # MongoDB configuration
-mongoDBDatabase = 'SkyFare'
-mongoCollection = 'flightroutes'
-mongoUrl = "mongodb://localhost:27017/SkyFare"
+mongoDBDatabase = 'SkyFare' # Name of the MongoDB database
+mongoCollection = 'flightroutes' # Name of the MongoDB collection
+mongoUrl = "mongodb://localhost:27017/SkyFare" # MongoDB connection URL
 
 # Redis clients for reading (DB 0) and writing (DB 1)
-redisReader = redis.Redis(port=6379, db=0, decode_responses=True)  # For reading from DB 0
-redisWriter = redis.Redis(port=6379, db=1, decode_responses=True)  # For writing to DB 1
+redisReader = redis.Redis(port=6379, db=0, decode_responses=True)  # Reading from Redis DB 0
+redisWriter = redis.Redis(port=6379, db=1, decode_responses=True)  # Writing to Redis DB 1
 
 # The size of document upload batches
 batchSize = 50
 
-# Function to ensure the database and collection are reset
+# Function to ensure the MongoDB database and collection are reset
 def initializeDatabase():
     with MongoClient(mongoUrl) as client:
         if mongoDBDatabase in client.list_database_names():
