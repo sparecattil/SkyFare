@@ -1,3 +1,8 @@
+//////////////////////////////////////////////////////////////////////////////////////////////
+// Contributors: Sebastian Parecattil, Shiv Patel
+// Versions: Node - 23.3.0
+//
+//////////////////////////////////////////////////////////////////////////////////////////////
 //const express = require('express'); // Basic Library for web app
 //const path = require('path'); // Library for path transformation 
 //const http = require('http'); // Library for HTTP server
@@ -83,7 +88,7 @@ app.post('/two', async(req, res) => {
     return res.status(400).send('Origin not received on Server');
   }
 
-  console.log("Received on Server: " + originAirport);
+  //console.log("Received on Server: " + originAirport);
 
   try {
     const { maxFare, minFare, maxMiles, minMiles } = await priceRangeAndDistance(originAirport); // Replace with query two function
@@ -574,8 +579,8 @@ async function getLatLong(originAirport, destinationAirport) {
     destLat = destinationData.latitude || null;
     destLon = destinationData.longitude || null;
 
-    console.log("Origin and Destination Data Fetched from Redis:");
-    console.log({ originLat, originLon, destLat, destLon });
+    //console.log("Origin and Destination Data Fetched from Redis:");
+    //console.log({ originLat, originLon, destLat, destLon });
 
   } 
   catch (error) {
@@ -822,7 +827,7 @@ async function getUserRecommendations() {
         }
       }
     ]).toArray();
-    console.log(queryResult);
+    //console.log(queryResult);
     
   } 
   catch (error) {
