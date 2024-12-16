@@ -23,29 +23,52 @@ const priceTwo = document.getElementById("priceTwo");
 const priceThree = document.getElementById("priceThree");
 const priceFour = document.getElementById("priceFour");
 
+let chartData;
+
 let airlineCompany = {  "AA": "American Airlines",
-                        "AS": "Alaska Airlines  ",
-                        "DL": "Delta Air Lines  ",
-                        "EV": "Envoy Air        ",
+                        "AS": "Alaska Airlines",
+                        "DL": "Delta Air Lines",
+                        "EV": "Envoy Air",
                         "F9": "Frontier Airlines",
                         "HA": "Hawaiian Airlines",
-                        "MQ": "Envoy Air        ",
+                        "MQ": "Envoy Air",
                         "NW": "Northwest Airlines",
-                        "NK": "Spirit Airlines  ",
-                        "OO": "SkyWest Airlines ",
+                        "NK": "Spirit Airlines",
+                        "OO": "SkyWest Airlines",
                         "US": "US Airways",
-                        "UA": "United Airlines  ",
+                        "UA": "United Airlines",
                         "WN": "Southwest Airlines",
-                        "B6": "JetBlue Airways  ",
-                        "G4": "Allegiant Air    ",
+                        "B6": "JetBlue Airways",
+                        "G4": "Allegiant Air",
                         "P7": "Piedmont Airlines",
-                        "YV": "Mesa Air Group   ",
-                        "9X": "Compass Airlines ",
+                        "YV": "Mesa Air Group",
+                        "9X": "Compass Airlines",
                         "ZK": "Trans States Airlines",
-                        "QX": "Horizon Air      ",
+                        "QX": "Horizon Air",
                         "I5": "Sun Country Airlines",
                         "M7": "Mesa Air Group   ",
-                        "P8": "Piedmont Airlines"
+                        "P8": "Piedmont Airlines",
+                        "CO": "Continental Airlines",
+                        "FL": "AirTran Airways",
+                        "HP": "Amapola Flyg AB",
+                        "J7": "Afrijet Business Service",
+                        "MX": "Breeze Airways",
+                        "RU": "AirBridgeCargo Airlines",
+                        "U2": "easyJet",
+                        "PN": "China West Air", 
+                        "ZW": "Air Wisconsin",
+                        "XJ": "Thai AirAsia X",
+                        "SY": "Sun Country",
+                        "TW": "T'way Air",
+                        "U5": "SkyUp MT",
+                        "DH": "Norwegian Air",
+                        "HQ": "Thomas Cook Airlines",
+                        "JI": "Armenian Airlines",
+                        "KS": "Penair",
+                        "KW": "Air company AeroStan",
+                        "TZ": "Air Tanzania",
+                        "UK": "VISTARA",
+                        "9K": "Cape Air",
                     };
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -98,7 +121,6 @@ async function getReccomendations() {
             }
             else {
                 company = data.recommendations[x].airline; 
-                console
             }
 
             if (data.recommendations[x].quarter == '1') {
@@ -307,6 +329,7 @@ function checkWorking() {
 }
 
 async function getSearchResults() {
+    let company;
 
     const response = await fetch('/four', {
         method: 'POST',
@@ -316,31 +339,9 @@ async function getSearchResults() {
         body: JSON.stringify({ originAirport: selectElement.value, destinationAirport: destinationElement.value }),
       });
       if (response.ok) {
-
-        myChart.data.datasets[0].data = [];
-        myChart.data.datasets[1].data = [];
-        myChart.data.datasets[2].data = [];
-        myChart.data.datasets[3].data = [];
-
         const data = await response.json();
-        console.log(data);
-
-        // for (x in data.graphData) {
-        //     if (data.graphData[x].quarter == '1') {
-        //         myChart.data.datasets[0].data = data.graphData[x].yearsFormatted;
-        //     }
-        //     else if (data.graphData[x].quarter == '2') {
-        //         myChart.data.datasets[1].data = data.graphData[x].yearsFormatted;
-        //     }
-        //     else if (data.graphData[x].quarter == '3') {
-        //         myChart.data.datasets[2].data = data.graphData[x].yearsFormatted;
-        //     }
-        //     else if (data.graphData[x].quarter == '4') {
-        //         myChart.data.datasets[3].data = data.graphData[x].yearsFormatted;
-        //     }
-        // }
-         myChart.update();
-        
+        chartData = data;
+        updateChart(chartData);
       }
       else {
         alert('Failed to generate the HTML file.');
@@ -407,3 +408,55 @@ async function getCoordinates() {
       alert('Failed to generate the HTML file.');
     }
 }
+
+function updateChart(data) {
+    const quarterChart = document.getElementById("quarterChart").value;
+    myChart.data.datasets = [];
+
+    //console.log(data);
+    
+    for (x in data.graphData){
+        if (data.graphData[x].airline in airlineCompany){
+            company = airlineCompany[data.graphData[x].airline];
+        }
+        else {
+            company = data.graphData[x].airline;
+        }
+        //console.log(data.graphData[x].years);
+
+        const yearToPrice = data.graphData[x].years.reduce((acc, item) => {
+            acc[item.year] = item.avgPrice;
+            return acc;
+        }, {});
+
+        const randomColor = `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 0.2)`;
+        const randomBorderColor = randomColor.replace("0.2", "1");
+        
+        let checkQuarter = quarterChart.slice(-1);
+        console.log(checkQuarter);
+
+        if (data.graphData[x].airline != ''){
+            if (checkQuarter == data.graphData[x].quarter) {
+                console.log("HERE");
+                const newDataset = {
+                    label: company, // Name for the dataset (e.g., an airline name)
+                    data: yearToPrice, // Data points for the X-axis labels
+                    backgroundColor: randomColor, // Fill color (for bar or radar charts)
+                    borderColor: randomBorderColor, // Line color (for line charts)
+                    borderWidth: 1, // Line thickness
+                };
+                myChart.data.datasets.push(newDataset);
+            }
+        }
+    }
+        
+    // Add the new dataset
+    
+    myChart.update();
+}
+
+const quarterChart = document.getElementById("quarterChart");
+
+quarterChart.addEventListener("change", function() {
+    updateChart(chartData);
+});
