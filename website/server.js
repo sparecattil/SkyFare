@@ -211,7 +211,7 @@ app.post('/accountDetails', async(req, res) => {
 
 app.get('/userActive', async(req, res) => {
   try {
-    const exists = await checkUserExistence(lastUsername);
+    const exists = await checkUserExistence();
     //console.log("Server:")
     //console.log(distinctAirports);
     res.json({ exists });
@@ -231,7 +231,7 @@ app.get('/userActive', async(req, res) => {
 var lastUsername;
 
 // Function to check if user still exists in Redis
-async function checkUserExistence(lastUsername) {
+async function checkUserExistence() {
   var exists;
   try {
     const redisKey = `user:${lastUsername}`;
