@@ -1,77 +1,99 @@
-# Project Setup Instructions
+# SkyFare
 
-Follow these steps to set up the project:
+## Versions
 
-## 1. Open Command Prompt / Terminal
+- **Node.js:** 23.3.0  
+- **Python:** 3.12.6
 
-Open Command Prompt on Windows or Terminal on Unix-like systems
+---
 
-## 2. Create a Virtual Environment
+## Project Setup Instructions
 
-Run the following command to create a virtual environment:
+### 1. Open Command Prompt / Terminal
 
-```bash
-python -m venv venv
-```
+- Open **Command Prompt** on Windows or **Terminal** on Unix-like systems.
 
-## 3. Activate the Virtual Environment
+---
 
-For Windows, use the following command:
+### 2. Create a Virtual Environment
 
-```bash
-venv\Scripts\activate
-```
+- Run the following command to create a virtual environment:
 
-For macOS and Linux, use the following command:
+  ```bash
+  python -m venv venv
+  ```
 
-```bash
-source venv/bin/activate
-```
+---
 
-## 4. Install Python Redis Dependency
+### 3. Activate the Virtual Environment
 
-Run the following command to install the required Redis packages:
+- For **Windows**, use the following command:
 
-```bash
-pip install redis
-```
-## 5. Install Python MongoDB Dependency
+  ```bash
+  venv\Scripts\activate
+  ```
 
-Run the following command to install the required MongoDB packages:
+- For **macOS** and **Linux**, use the following command:
 
-```bash
-pip install pymongo
-```
+  ```bash
+  source venv/bin/activate
+  ```
 
-## 6. Install Node.js Dependencies
+---
 
-Run the following commands to install the required Node.js packages:
+### 4. Install Python Redis Dependency
 
-```bash
-npm install express
-```
-```bash
-npm install mongodb
-```
-```bash
-npm install ioredis
-```
+- Run the following command to install the required Redis packages:
 
-## 7. Run Redis-Stack Server and/or Client
+  ```bash
+  pip install redis
+  ```
 
-Run a local instance of the Redis-Stack Server and/or Client
+---
 
-Run the following command to run the redis-stack server using Docker (Optional):
+### 5. Install Python MongoDB Dependency
 
-```bash
-docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
-```
+- Run the following command to install the required MongoDB packages:
 
-Run the following command to run the redis-stack client using Docker (Optional):
+  ```bash
+  pip install pymongo
+  ```
 
-```bash
-docker exec -it redis-stack redis-cli
-```
+---
+
+### 6. Install Node.js Dependencies
+
+- Run the following commands to install the required Node.js packages:
+
+  ```bash
+  npm install express
+  ```
+
+  ```bash
+  npm install mongodb
+  ```
+
+  ```bash
+  npm install ioredis
+  ```
+
+---
+
+### 7. Run Redis-Stack Server and/or Client
+
+- Run a local instance of the Redis-Stack Server and/or Client.
+
+- Use the following command to run the Redis-Stack server using Docker (Optional):
+
+  ```bash
+  docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
+  ```
+
+- Use the following command to run the Redis-Stack client using Docker (Optional):
+
+  ```bash
+  docker exec -it redis-stack redis-cli
+  ```
 
 To Run redis via docker, ignore this for now
 docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
