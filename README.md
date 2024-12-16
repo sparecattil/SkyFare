@@ -1,12 +1,16 @@
-# Project Setup Instructions
+# SkyFare
 
-Follow these steps to set up the project:
+### Versions
+Node - 23.3.0
+Python - 3.12.6
 
-## 1. Open Command Prompt / Terminal
+## Project Setup Instructions
+
+### 1. Open Command Prompt / Terminal
 
 Open Command Prompt on Windows or Terminal on Unix-like systems
 
-## 2. Create a Virtual Environment
+### 2. Create a Virtual Environment
 
 Run the following command to create a virtual environment:
 
@@ -14,7 +18,7 @@ Run the following command to create a virtual environment:
 python -m venv venv
 ```
 
-## 3. Activate the Virtual Environment
+### 3. Activate the Virtual Environment
 
 For Windows, use the following command:
 
@@ -28,14 +32,14 @@ For macOS and Linux, use the following command:
 source venv/bin/activate
 ```
 
-## 4. Install Python Redis Dependency
+### 4. Install Python Redis Dependency
 
 Run the following command to install the required Redis packages:
 
 ```bash
 pip install redis
 ```
-## 5. Install Python MongoDB Dependency
+### 5. Install Python MongoDB Dependency
 
 Run the following command to install the required MongoDB packages:
 
@@ -43,7 +47,7 @@ Run the following command to install the required MongoDB packages:
 pip install pymongo
 ```
 
-## 6. Install Node.js Dependencies
+### 6. Install Node.js Dependencies
 
 Run the following commands to install the required Node.js packages:
 
@@ -57,7 +61,7 @@ npm install mongodb
 npm install ioredis
 ```
 
-## 7. Run Redis-Stack Server and/or Client
+### 7. Run Redis-Stack Server and/or Client
 
 Run a local instance of the Redis-Stack Server and/or Client
 
