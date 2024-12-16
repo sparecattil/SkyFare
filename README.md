@@ -37,7 +37,13 @@ npm install mongodb
 ```bash
 npm install ioredis
 ```
-
+## Other required
+```bash
+pip install redis
+```
+```bash
+pip install pymongo
+```
 
 To Run redis via docker, ignore this for now
 docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
