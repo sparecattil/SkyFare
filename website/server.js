@@ -137,6 +137,19 @@ app.post('/four', async(req, res) => {
   }
 });
 
+app.get('/five', async(req, res) => {
+  try {
+    const recommendations = await getUserReccomendations();
+    //console.log("Server:")
+    //console.log(distinctAirports);
+    res.json({ recommendations });
+  } 
+  catch (error) {
+    console.error('Error in /test route:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 
 app.post('/seven', async(req, res) => {
   const { originAirport, destinationAirport } = req.body;
@@ -707,3 +720,163 @@ async function getGraphData(originAirport, destinationAirport) {
   }
   return queryResult; // Return the formatted graph data
 }
+
+async function getUserRecommendations() {
+  let client;
+  var queryResult;
+  try {
+    client = new MongoClient(uri); // Replace 'uri' with your MongoDB connection string
+    await client.connect();
+    console.log("Connected to MongoDB for user recommendations");
+
+    const db = client.db(dbName); // Replace 'dbName' with your database name
+    const collection = db.collection("accounts"); // Collection name
+
+    queryResult = await collection.aggregate([
+      {
+        $match: {
+          username: lastUsername
+        }
+      },
+      {
+        $project: {
+          originAirport: 1,
+          miles: 1,
+          price: 1
+        }
+      },
+      {
+        $lookup: {
+          from: "flightroutes",
+          let: { 
+            originAirportInput: "$originAirport",
+            maxDistance: { $toDouble: "$miles" },
+            inputPrice: { $toDouble: "$price" }
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$origin.airport", "$$originAirportInput"] }
+              }
+            },
+            {
+              $addFields: {
+                distanceDeviation: { 
+                  $abs: { 
+                    $subtract: [
+                      { 
+                        $toDouble: { 
+                          $cond: {
+                            if: { 
+                              $or: [
+                                { $eq: [ "$nsmiles", "" ] }, 
+                                { $eq: [ "$nsmiles", null ] }
+                              ]
+                            }, 
+                            then: 0, 
+                            else: "$nsmiles"
+                          }
+                        }
+                      },
+                      "$$maxDistance"
+                    ] 
+                  }
+                },
+                priceDeviation: { 
+                  $abs: { 
+                    $subtract: [
+                      { 
+                        $toDouble: { 
+                          $cond: {
+                            if: { 
+                              $or: [
+                                { $eq: [ "$lowestCarrier.fare", "" ] },
+                                { $eq: [ "$lowestCarrier.fare", null ] }
+                              ]
+                            },
+                            then: 0, 
+                            else: "$lowestCarrier.fare"
+                          }
+                        }
+                      },
+                      "$$inputPrice"
+                    ] 
+                  }
+                }
+              }
+            },
+            {
+              $sort: {
+                distanceDeviation: 1,
+                priceDeviation: 1
+              }
+            },
+            {
+              $group: {
+                _id: "$quarter",
+                bestFlight: { $first: "$$ROOT" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                quarter: "$_id",
+                origin: "$bestFlight.origin.airport",
+                destination: "$bestFlight.destination.airport",
+                price: "$bestFlight.lowestCarrier.fare",
+                miles: "$bestFlight.nsmiles",
+                airline: "$bestFlight.lowestCarrier.name"
+              }
+            }
+          ],
+          as: "flightRoutes"
+        }
+      },
+      {
+        $project: {
+          username: 1,
+          originAirport: 1,
+          flightRoutes: 1
+        }
+      },
+      {
+        $unwind: {
+          path: "$flightRoutes",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $group: {
+          _id: "$flightRoutes.quarter",
+          quarterData: { $first: "$flightRoutes" }
+        }
+      },
+      {
+        $project: {
+          quarter: "$_id",
+          origin: { $ifNull: ["$quarterData.origin", null] },
+          destination: { $ifNull: ["$quarterData.destination", null] },
+          price: { $ifNull: ["$quarterData.price", null] },
+          miles: { $ifNull: ["$quarterData.miles", null] },
+          airline: { $ifNull: ["$quarterData.airline", null] }
+        }
+      },
+      {
+        $sort: {
+          quarter: 1
+        }
+      }
+    ]).toArray();
+    console.log(queryResult);
+    
+  } 
+  catch (error) {
+    console.error("Error in getUserRecommendations:", error);
+    throw error;
+  } 
+  finally {
+    if (client) await client.close();
+  }
+  return queryResult;
+}
+
