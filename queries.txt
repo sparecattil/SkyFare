@@ -147,94 +147,72 @@ Query Three:
   
 Query Four: 
 
-  Input: Origin Airport and Destination Airport
+  Input: Origin Airport and Destination Airport (Full-Text Search Format)
   
   Return: For each airline that flys the route return the price, quarter and year
   
   Answer:  db.flightroutes.aggregate([
           {
             $match: {
-              "origin.airport": "CVG",  // Replace "CVG" with the desired origin airport
-              "destination.airport": "LAX"  // Replace "LAX" with the desired destination airport
+              $text: { $search: "CVG LAX" }  // Match based on user inputs for origin and destination airports
             }
           },
           {
             $addFields: {
               averagePrice: {
                 $avg: [
-                  { $convert: { 
-                    input: "$largestCarrier.fare", 
-                    to: "double", 
-                    onError: 'null', 
-                    onNull: 'null' 
-                  } 
-                },
-                {   $convert: { 
-                    input: "$lowestCarrier.fare", 
-                    to: "double", 
-                    onError: 'null', 
-                    onNull: 'null' 
-                  } 
-                }
+                  { 
+                    $convert: { 
+                      input: "$largestCarrier.fare", 
+                      to: "double", 
+                      onError: 'null', 
+                      onNull: 'null' 
+                    } 
+                  },
+                  { 
+                    $convert: { 
+                      input: "$lowestCarrier.fare", 
+                      to: "double", 
+                      onError: 'null', 
+                      onNull: 'null' 
+                    } 
+                  }
                 ]
               }
             }
           },
           {
             $group: {
-              _id: { year: "$year", quarter: "$quarter" },
-              avgPrice: { $avg: "$averagePrice" },
-              year: { $first: "$year" },
-              quarter: { $first: "$quarter" }
+              _id: { airline: "$largestCarrier.name", year: "$year", quarter: "$quarter" },  // Group by airline, year, and quarter
+              avgPrice: { $avg: "$averagePrice" }
             }
           },
           {
             $group: {
-              _id: "$quarter",  // Group by quarter
+              _id: { airline: "$_id.airline", quarter: "$_id.quarter" },  // Group by airline and quarter
               years: {
-                $push: {  // Collect data for each year in the same quarter
-                  year: "$year",
-                  averagePrice: "$avgPrice"
+                $push: {
+                  year: "$_id.year",
+                  avgPrice: "$avgPrice"
                 }
               }
             }
           },
           {
             $project: {
-              _id: 0,
-              quarter: "$_id",
+              airline: "$_id.airline",
+              quarter: "$_id.quarter",
               years: 1
             }
           },
           {
-            $addFields: {
-              yearsFormatted: {
-                $arrayToObject: {  // Convert the array of years into an object with year as the key
-                  $map: {
-                    input: "$years",
-                    as: "yearData",
-                    in: [
-                      { $concat: [{ $toString: "$$yearData.year" }] },  // Create keys like 'year1', 'year2', etc.
-                      "$$yearData.averagePrice"
-                    ]
-                  }
-                }
-              }
-            }
-          },
-          {
-            $project: {
-              quarter: 1,
-              yearsFormatted: 1
-            }
+            $sort: { "quarter": 1, "airline": 1 }  // Sort by quarter and airline
           }
         ]);
-
-
   
 Query Five: 
 
-  Input: Origin Airport, Distance, and Price Range
+  Input: None
   
   Return: For each quarter match the following fields and return the best match destination
   
