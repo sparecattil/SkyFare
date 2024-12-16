@@ -10,6 +10,7 @@ processedLines = 0
 ## This function loops through the
 ## CSV data file and populates Redis
 def populateRedis():
+    redisClient.flushdb()
     line_count = 0
     with open(csvFilename, encoding="utf8") as csv_file:
         csv_reader = csv.DictReader(csv_file)
