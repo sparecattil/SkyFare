@@ -51,7 +51,7 @@ const client = new MongoClient(uri);
 const redis = new Redis({
   host: '127.0.0.1', // Localhost
   port: 6379,         // Default Redis port
-  db: 0               // Redis database index (default is 0)
+  db: 1               // Redis database index (default is 0)
 });
 
 // Test the connection
@@ -557,63 +557,33 @@ async function destRoutesFromOrigin(originAirport) {
 }
 
 async function getLatLong(originAirport, destinationAirport) {
-  var originLat;
-  var originLon;
-  var destLat;
-  var destLon;
+  let originLat, originLon, destLat, destLon;
+
   try {
-    await client.connect();
-    const db = client.db(dbName);
-    const collection = db.collection('flightroutes');
+    // Construct Redis keys for the origin and destination airports
+    const originKey = `airport:${originAirport}`;
+    const destinationKey = `airport:${destinationAirport}`;
 
-    // Query with deduplication using $group
-    const queryResult = await collection.aggregate([
-      {
-        $match: {
-          "origin.airport": originAirport,         // Replace with the origin airport
-          "destination.airport": destinationAirport    // Replace with the destination airport
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          origin: {
-            latitude: "$origin.latitude",
-            longitude: "$origin.longitude"
-          },
-          destination: {
-            latitude: "$destination.latitude",
-            longitude: "$destination.longitude"
-          }
-        }
-      },
-      { 
-        $limit: 1  // Only return the first matching document
-      }
-    ]).toArray();
+    // Fetch data for the origin and destination airports
+    const originData = await redis.hgetall(originKey);
+    const destinationData = await redis.hgetall(destinationKey);
 
-    if (queryResult.length > 0) {
-      const result = queryResult[0];
-      originLat = result['origin']['latitude'];
-      originLon = result['origin']['longitude'];
-      destLat = result['destination']['latitude'];
-      destLon = result['destination']['longitude'];
-    } 
-    else {
-      return { message: "No data found for the specified airports." };
-    }
+    // Extract latitude and longitude from the Redis response
+    originLat = originData.latitude || null;
+    originLon = originData.longitude || null;
+    destLat = destinationData.latitude || null;
+    destLon = destinationData.longitude || null;
 
-    console.log()
+    console.log("Origin and Destination Data Fetched from Redis:");
+    console.log({ originLat, originLon, destLat, destLon });
+
   } 
   catch (error) {
-    console.error("Error in getLatLong:", error);
+    console.error("Error fetching latitude and longitude from Redis:", error);
     throw error;
-  } 
-  finally {
-    await client.close();
   }
 
-  //console.log({ originLat, originLon, destLat, destLon });
+  // Return the latitude and longitude values
   return { originLat, originLon, destLat, destLon };
 }
 
