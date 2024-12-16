@@ -323,23 +323,23 @@ async function getSearchResults() {
         myChart.data.datasets[3].data = [];
 
         const data = await response.json();
-        //console.log(data);
+        console.log(data);
 
-        for (x in data.graphData) {
-            if (data.graphData[x].quarter == '1') {
-                myChart.data.datasets[0].data = data.graphData[x].yearsFormatted;
-            }
-            else if (data.graphData[x].quarter == '2') {
-                myChart.data.datasets[1].data = data.graphData[x].yearsFormatted;
-            }
-            else if (data.graphData[x].quarter == '3') {
-                myChart.data.datasets[2].data = data.graphData[x].yearsFormatted;
-            }
-            else if (data.graphData[x].quarter == '4') {
-                myChart.data.datasets[3].data = data.graphData[x].yearsFormatted;
-            }
-        }
-        myChart.update();
+        // for (x in data.graphData) {
+        //     if (data.graphData[x].quarter == '1') {
+        //         myChart.data.datasets[0].data = data.graphData[x].yearsFormatted;
+        //     }
+        //     else if (data.graphData[x].quarter == '2') {
+        //         myChart.data.datasets[1].data = data.graphData[x].yearsFormatted;
+        //     }
+        //     else if (data.graphData[x].quarter == '3') {
+        //         myChart.data.datasets[2].data = data.graphData[x].yearsFormatted;
+        //     }
+        //     else if (data.graphData[x].quarter == '4') {
+        //         myChart.data.datasets[3].data = data.graphData[x].yearsFormatted;
+        //     }
+        // }
+         myChart.update();
         
       }
       else {

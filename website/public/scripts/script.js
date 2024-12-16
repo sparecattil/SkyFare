@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////
-// FUNCTION NAME: nextPage 
+// Function Name: nextPage 
 // Description: Calls method to check username
 ///////////////////////////////////////////////
 function nextPage() {
@@ -30,7 +30,7 @@ password.addEventListener("change", function() {
 });
 
 ///////////////////////////////////////////////
-// FUNCTION NAME: checkUsername 
+// Function Name: checkUsername 
 // Description: This asynchronous function
 //              calls the server and sends in 
 //              the user's inputs from both the 
