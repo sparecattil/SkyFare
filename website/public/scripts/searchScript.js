@@ -31,7 +31,8 @@ async function getReccomendations() {
     // const response = await fetch('/five');
     
     //   if (response.ok) {
-    //       const data = await response.json();
+    //      const data = await response.json();
+    //      console.log(data);
 
     //   } 
     //   else {
@@ -52,7 +53,7 @@ function generateYears(startYear, endYear) {
 
 // Function to generate random data for each year (replace with actual data)
 function generateDataForYears() {
-    return Array.from({ length: generateYears(1993, 2024).length }, () => Math.floor(Math.random() * 20));
+    return Array.from({ length: generateYears(1993, 2024).length }, () => Math.floor(Math.random() * 100));
 }
 
 // Create the chart
@@ -62,24 +63,31 @@ const myChart = new Chart(ctx, {
         labels: generateYears(1993, 2024),
         datasets: [
             {
-                label: 'Votes 1',  // First line
+                label: 'Quarter 1',  // First line
                 data: generateDataForYears(),
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
                 borderColor: 'rgba(255, 99, 132, 1)',
                 borderWidth: 1
             },
             {
-                label: 'Votes 2',  // Second line
+                label: 'Quarter 2',  // Second line
                 data: generateDataForYears(),
                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
                 borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 1
             },
             {
-                label: 'Votes 3',  // Third line
+                label: 'Quarter 3',  // Third line
                 data: generateDataForYears(),
                 backgroundColor: 'rgba(255, 206, 86, 0.2)',
                 borderColor: 'rgba(255, 206, 86, 1)',
+                borderWidth: 1
+            },
+            {
+                label: 'Quarter 4',  // Third line
+                data: generateDataForYears(),
+                backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                borderColor: 'rgba(30, 67, 86, 1)',
                 borderWidth: 1
             },
             // You can add more datasets here for additional lines
@@ -194,7 +202,27 @@ destinationElement.addEventListener("change", function() {
 });
 
 function checkWorking() {
-    getCoordinates();
+    getSearchResults();
+}
+
+async function getSearchResults() {
+
+    const response = await fetch('/four', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ originAirport: selectElement.value, destinationAirport: destinationElement.value }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        
+      }
+      else {
+        alert('Failed to generate the HTML file.');
+      }
 }
 
 async function allDestinationAirports() {
