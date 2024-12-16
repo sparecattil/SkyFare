@@ -82,7 +82,7 @@ async function getReccomendations() {
 
       if (response.ok) {
          const data = await response.json();
-         console.log(data);
+         //console.log(data);
 
          fromOne.innerHTML = "  ";
          toOne.innerHTML = "  ";
@@ -228,7 +228,22 @@ const myChart = new Chart(ctx, {
     }
 });
 
+let markers = [];
+let polyline;
 
+function clearMap() {
+    // Remove all markers
+    markers.forEach(marker => map.removeLayer(marker));
+
+    // Remove the polyline
+    if (polyline) {
+        map.removeLayer(polyline);
+    }
+
+    // Optionally, clear the markers array and polyline reference for reuse
+    markers = [];
+    polyline = null;
+}
 
 const map = L.map('map', {
     dragging: false, 
@@ -243,26 +258,6 @@ const map = L.map('map', {
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
 }).addTo(map);
-
-
-const locations = [
-    { name: "Los Angeles International Airport (LAX)", lat: 33.9416, lng: -118.4085 },
-    { name: "John F. Kennedy International Airport (JFK)", lat: 40.6413, lng: -73.7781 }
-];
-
-locations.forEach(location => {
-    L.marker([location.lat, location.lng])
-        .addTo(map)
-        .bindPopup(`<b>${location.name}</b><br>Lat: ${location.lat}, Lng: ${location.lng}`);
-});
-
-// Draw a line between Los Angeles and New York
-const pathCoordinates = [
-    [33.9416, -118.4085],
-    [40.6413, -73.7781] 
-];
-
-L.polyline(pathCoordinates, { color: 'blue', weight: 3 }).addTo(map);
 
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -325,6 +320,7 @@ destinationElement.addEventListener("change", function() {
 });
 
 function checkWorking() {
+    getCoordinates();
     getSearchResults();
 }
 
@@ -402,7 +398,54 @@ async function getCoordinates() {
 
     if (response.ok) {
         const data = await response.json();
-        console.log(data);
+        //console.log(data);
+
+        clearMap();
+        let locations = [];
+        let pathCoordinates = [];
+
+        if (originAirport == "MIA") {
+            locations = [
+                { name: originAirport, lat: 25.79, lng: -80.28 },
+                { name: destinationAirport, lat: data.destLat, lng: data.destLon }
+            ];
+            pathCoordinates = [
+                [25.79, -80.28],
+                [data.destLat, data.destLon]
+            ];
+        }
+        else if (destinationAirport == "MIA"){
+            locations = [
+                { name: originAirport, lat: data.originLat, lng: data.originLon },
+                { name: destinationAirport, lat: 25.79, lng: -80.28 }
+            ];
+            pathCoordinates = [
+                [data.originLat, data.originLon],
+                [25.79, -80.28]
+            ];
+        }
+        else {
+            locations = [
+                { name: originAirport, lat: data.originLat, lng: data.originLon },
+                { name: destinationAirport, lat: data.destLat, lng: data.destLon }
+            ];
+            // Draw a polyline (path) between origin and destination
+            pathCoordinates = [
+                [data.originLat, data.originLon],
+                [data.destLat, data.destLon]
+            ];
+        }
+        
+        // Add markers and store them in the array
+        locations.forEach(location => {
+            const marker = L.marker([location.lat, location.lng])
+                .addTo(map)
+                .bindPopup(`<b>${location.name}</b><br>Lat: ${location.lat}, Lng: ${location.lng}`);
+            markers.push(marker); // Store the marker reference
+        });
+        
+        polyline = L.polyline(pathCoordinates, { color: 'blue', weight: 3 }).addTo(map);
+
     } 
     else {
       alert('Failed to generate the HTML file.');
@@ -433,11 +476,11 @@ function updateChart(data) {
         const randomBorderColor = randomColor.replace("0.2", "1");
         
         let checkQuarter = quarterChart.slice(-1);
-        console.log(checkQuarter);
+        //console.log(checkQuarter);
 
         if (data.graphData[x].airline != ''){
             if (checkQuarter == data.graphData[x].quarter) {
-                console.log("HERE");
+                //console.log("HERE");
                 const newDataset = {
                     label: company, // Name for the dataset (e.g., an airline name)
                     data: yearToPrice, // Data points for the X-axis labels
