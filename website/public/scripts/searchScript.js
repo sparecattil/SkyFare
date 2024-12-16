@@ -214,7 +214,6 @@ async function getSearchResults() {
         },
         body: JSON.stringify({ originAirport: selectElement.value, destinationAirport: destinationElement.value }),
       });
-      console.log(response);
       if (response.ok) {
 
         myChart.data.datasets[0].data = [];
