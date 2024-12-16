@@ -66,8 +66,8 @@ async function checkUsername() {
         password.classList.remove("error");
         username.value = '';
         password.value = '';
-        // Move to Next Page
-        window.location.href = "/userInformation.html"
+      
+        checkUserStatus();
 
       }
       // if status is false
@@ -86,3 +86,18 @@ async function checkUsername() {
     }
 }
 
+async function checkUserStatus() {
+  const response = await fetch('/userActive');
+  if (response.ok) {
+    const data = await response.json();
+    if (data.exists == 0) {
+      window.location.href = "/userInformation.html";
+    }
+    else {
+      window.location.href = "/search.html"
+    }
+  }
+  else {
+    alert('Failed to generate the HTML file.');
+  }
+}

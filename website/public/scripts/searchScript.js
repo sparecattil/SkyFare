@@ -1,3 +1,8 @@
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////Get All Reccomendation Elemnets////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
 const fromOne = document.getElementById("fromOne");
 const fromTwo = document.getElementById("fromTwo");
 const fromThree = document.getElementById("fromThree");
@@ -22,9 +27,16 @@ const priceOne = document.getElementById("priceOne");
 const priceTwo = document.getElementById("priceTwo");
 const priceThree = document.getElementById("priceThree");
 const priceFour = document.getElementById("priceFour");
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
 
+// Variable To Store Data For Full Text Search Data
 let chartData;
 
+// Dictionary that stores IAATA Airline code to Airline name
 let airlineCompany = {  "AA": "American Airlines",
                         "AS": "Alaska Airlines",
                         "DL": "Delta Air Lines",
@@ -71,62 +83,102 @@ let airlineCompany = {  "AA": "American Airlines",
                         "9K": "Cape Air",
                     };
 
+
+// Event listner on load of the page will call method to get reccomendations
+// and method to generate all origin Airports
 document.addEventListener('DOMContentLoaded', function() {
-    getReccomendations(); // Call the function when the DOM is fully loaded
+    getReccomendations();
+    allOriginAirports();
+
 });
 
+///////////////////////////////////////////////
+// Function Name: getReccomendations 
+// Description: The following fucntion calls 
+//              the server to query the users
+//              reccomendations based on 
+//              account information. If the 
+//              server responds with data, 
+//              formats data into 
+//              Reccomendation boxes for each
+//              quarter.
+///////////////////////////////////////////////
 async function getReccomendations() {
+
+    // Variable To Store Airline Company Name 
     let company;
 
+    // Request to server to run query
     const response = await fetch('/five');
-
-      if (response.ok) {
-         const data = await response.json();
-         //console.log(data);
-
-         fromOne.innerHTML = "  ";
-         toOne.innerHTML = "  ";
-         airlineOne.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO OPTIONS";
-         airlineOne.style.fontWeight = "bold";
-         milesOne.innerHTML = "  ";
-         priceOne.innerHTML = "<br>  <br>  <br> <br> ";
-
-         fromTwo.innerHTML = "  ";
-         toTwo.innerHTML = "  ";
-         airlineTwo.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO OPTIONS";
-         airlineTwo.style.fontWeight = "bold";
-         milesTwo.innerHTML = "  ";
-         priceTwo.innerHTML = "<br>  <br>  <br> <br> ";
-
-         fromThree.innerHTML = "  ";
-         toThree.innerHTML = "  ";
-         airlineThree.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO OPTIONS";
-         airlineThree.style.fontWeight = "bold";
-         milesThree.innerHTML = "  ";
-         priceThree.innerHTML = "<br>  <br>  <br> <br> ";
-
-
-         fromFour.innerHTML = "  ";
-         toFour.innerHTML = "  ";
-         airlineFour.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NO OPTIONS";
-         airlineFour.style.fontWeight = "bold";
-         milesFour.innerHTML = "  ";
-         priceFour.innerHTML = "<br>  <br>  <br> <br> ";
+    
+    // If server responds without error
+    if (response.ok) {
+        const data = await response.json();
+        //console.log(data);
         
 
-         for (x in data.recommendations) {
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////Set all Boxes To Default No Options/////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        fromOne.innerHTML = "  ";
+        toOne.innerHTML = "  ";
+        airlineOne.innerHTML = "NO OPTIONS";
+        airlineOne.style.textAlign = "center";
+        airlineOne.style.fontWeight = "bold";
+        milesOne.innerHTML = "  ";
+        priceOne.innerHTML = "<br>  <br>  <br> <br> ";
 
+        fromTwo.innerHTML = "  ";
+        toTwo.innerHTML = "  ";
+        airlineTwo.innerHTML = "NO OPTIONS";
+        airlineTwo.style.textAlign = "center";
+        airlineTwo.style.fontWeight = "bold";
+        milesTwo.innerHTML = "  ";
+        priceTwo.innerHTML = "<br>  <br>  <br> <br> ";
+
+        fromThree.innerHTML = "  ";
+        toThree.innerHTML = "  ";
+        airlineThree.innerHTML = "NO OPTIONS";
+        airlineThree.style.textAlign = "center";
+        airlineThree.style.fontWeight = "bold";
+        milesThree.innerHTML = "  ";
+        priceThree.innerHTML = "<br>  <br>  <br> <br> ";
+
+
+        fromFour.innerHTML = "  ";
+        toFour.innerHTML = "  ";
+        airlineFour.innerHTML = "NO OPTIONS";
+        airlineFour.style.textAlign = "center";
+        airlineFour.style.fontWeight = "bold";
+        milesFour.innerHTML = "  ";
+        priceFour.innerHTML = "<br>  <br>  <br> <br> ";
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
+    
+        // Parse through all data
+        for (x in data.recommendations) {
+
+            // If IAATA in dictionary then set the name, else keep IAATA Code
             if (data.recommendations[x].airline in airlineCompany){
                 company = airlineCompany[data.recommendations[x].airline];
             }
             else {
-                company = data.recommendations[x].airline; 
+                company = "IAATA: " + data.recommendations[x].airline; 
             }
 
+            // Check if the data array is matching the specified quarter box
+            // If match occurs then format necessary data
+            // else keep No Options Default
             if (data.recommendations[x].quarter == '1') {
                 fromOne.innerHTML = "<b>From:</b>" + data.recommendations[x].origin;
                 toOne.innerHTML = "<b>To:</b>" + data.recommendations[x].destination;
                 airlineOne.innerHTML = "<b>Airline:</b>" + company;
+                airlineOne.style.textAlign = "left";
                 airlineOne.style.fontWeight = "normal";
                 milesOne.innerHTML = "<b>Miles:</b>" + data.recommendations[x].miles;
                 priceOne.innerHTML = "<b>Price:</b>" + data.recommendations[x].price;
@@ -135,6 +187,7 @@ async function getReccomendations() {
                 fromTwo.innerHTML = "<b>From:</b>" + data.recommendations[x].origin;
                 toTwo.innerHTML = "<b>To:</b>" + data.recommendations[x].destination;
                 airlineTwo.innerHTML = "<b>Airline:</b>" + company;
+                airlineTwo.style.textAlign = "left";
                 airlineTwo.style.fontWeight = "normal";
                 milesTwo.innerHTML = "<b>Miles:</b>" + data.recommendations[x].miles;
                 priceTwo.innerHTML = "<b>Price:</b>" + data.recommendations[x].price;
@@ -142,7 +195,8 @@ async function getReccomendations() {
             else if (data.recommendations[x].quarter == '3') {
                 fromThree.innerHTML = "<b>From: </b>" + data.recommendations[x].origin;
                 toThree.innerHTML = "<b>To:</b>" + data.recommendations[x].destination;
-                airlineThree.innerHTML = "<b>Airline:</b>" + company
+                airlineThree.innerHTML = "<b>Airline:</b>" + company;
+                airlineThree.style.textAlign = "left";
                 airlineThree.style.fontWeight = "normal";
                 milesThree.innerHTML = "<b>Miles:</b>" + data.recommendations[x].miles;
                 priceThree.innerHTML = "<b>Price:</b>" + data.recommendations[x].price;
@@ -151,20 +205,23 @@ async function getReccomendations() {
                 fromFour.innerHTML = "<b>From:</b>" + data.recommendations[x].origin;
                 toFour.innerHTML = "<b>To:</b>" + data.recommendations[x].destination;
                 airlineFour.innerHTML = "<b>Airline:</b>" + company;
+                airlineFour.style.textAlign = "left";
                 airlineFour.style.fontWeight = "normal";
                 milesFour.innerHTML = "<b>Miles:</b>" + data.recommendations[x].miles;
                 priceFour.innerHTML = "<b>Price:</b>" + data.recommendations[x].price;
             }
-         }
+        }
 
-      } 
-      else {
+    } 
+    else {
+        // Repose if server errors out
         alert('Failed to generate the HTML file.');
-      }
     }
+}
 
-// Get the canvas element
+// Canvas Element for 2D Chart
 const ctx = document.getElementById('myChart').getContext('2d');
+
 
 function generateYears(startYear, endYear) {
     const years = [];
@@ -179,116 +236,131 @@ function generateDataForYears() {
     return Array.from({ length: generateYears(1993, 2024).length }, () => Math.floor(Math.random() * 100));
 }
 
-// Create the chart
+// Chart characteristics
 const myChart = new Chart(ctx, {
-    type: 'line',
+    type: 'line', // Type of Line
     data: {
-        labels: generateYears(1993, 2024),
-        datasets: [
-            {
-                label: 'Quarter 1',  // First line
-                data: generateDataForYears(),
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
-            },
-            {
-                label: 'Quarter 2',  // Second line
-                data: generateDataForYears(),
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-            },
-            {
-                label: 'Quarter 3',  // Third line
-                data: generateDataForYears(),
-                backgroundColor: 'rgba(255, 206, 86, 0.2)',
-                borderColor: 'rgba(255, 206, 86, 1)',
-                borderWidth: 1
-            },
-            {
-                label: 'Quarter 4',  // Third line
-                data: generateDataForYears(),
-                backgroundColor: 'rgba(200, 100, 255, 0.2)',
-                borderColor: 'rgba(200, 100, 255, 1)',
-                borderWidth: 1
-            },
-            // You can add more datasets here for additional lines
+        labels: generateYears(1993, 2024), // X Axis Values
+        datasets: [ // No Default Data
+            
         ]
     },
     options: {
         scales: {
+            // Y Axis Title and Begin at Zero
             y: {
-                beginAtZero: true
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Price ($)', 
+                    font: {
+                        size: 14 
+                    }
+                }
             },
+            // X Axis Title and Begin at Zero
             x: {
-                beginAtZero: true
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Years', 
+                    font: {
+                        size: 14 
+                    }
+                }
             }
         }
     }
 });
 
+// Variable for Map Marker Coordinates
 let markers = [];
+
+// Variable for Map Line Coordinates
 let polyline;
 
+///////////////////////////////////////////////
+// Function Name: clearMap 
+// Description: The following fucntion calls 
+//              removes the map layers for each
+//              marker in the markers array.
+//              Then if a line exists it 
+//              removes the polyline.
+///////////////////////////////////////////////
 function clearMap() {
+
     // Remove all markers
     markers.forEach(marker => map.removeLayer(marker));
 
-    // Remove the polyline
+    // Remove Polyline
     if (polyline) {
         map.removeLayer(polyline);
     }
 
-    // Optionally, clear the markers array and polyline reference for reuse
+    // Set Varibles make to Default
     markers = [];
     polyline = null;
 }
 
+// Create Map Element with user controls set to false.
+// The Map will only show the full coordinates of the US MAP
 const map = L.map('map', {
     dragging: false, 
     scrollWheelZoom: false, 
     doubleClickZoom: false, 
     boxZoom: false, 
     keyboard: false, 
-    zoomControl: false 
-}).setView([39.8283, -98.5795], 4);
+    zoomControl: false,
+    zoomSnap: 0.01, // Allows fractional zoom levels
+    zoomDelta: 0.01 // Adjusts the zoom step
+}).setView([39.8283, -96.5795], 4.5);
 
-// Add tile layer
+// Renders Map Using Open Street Map 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
-
-document.addEventListener('DOMContentLoaded', function() {
-allOriginAirports(); // Call the function when the DOM is fully loaded
-});
-
+// Array to hold all origin airports
 let distinctAirports = [];
 
+// Array to hold all destination airports based on origin airport selected
 let destinationAirports = [];
 
-// Get the select element
+// Get Origin Airport Select Input Element
 const selectElement = document.getElementById("originAirport");
 
+///////////////////////////////////////////////
+// Function Name: allOriginAirports 
+// Description: The following function will 
+//              ask the server to query all the
+//              origin airports available. Then
+//              given the server response will 
+//              parse through the data and add
+//              that as a potential value for
+//              the user to select.
+///////////////////////////////////////////////
 async function allOriginAirports() {
+    // Ask the server to query for all origin airports
     const response = await fetch('/one');
 
+    // If server responds without error
     if (response.ok) {
+        // Get data received from server
         const data = await response.json();
         distinctAirports = data.distinctAirports;
         //console.log("Client:");
         //console.log(distinctAirports);
 
-        // Loop through the airports array and create option elements
+        // For each element in array add it as a attribute to the select element of Home Airport
         distinctAirports.forEach(airport => {
         const option = document.createElement("option");
-        option.value = airport; // Set the value attribute
-        option.textContent = airport; // Set the visible text
-        selectElement.appendChild(option); // Append the option to the select
+        option.value = airport; 
+        option.textContent = airport;
+        selectElement.appendChild(option); 
         });
     } 
     else {
+        // Server Error Alert
         alert('Response from server not received');
     }
 }
@@ -319,13 +391,12 @@ destinationElement.addEventListener("change", function() {
     }
 });
 
-function checkWorking() {
+function searchRoute() {
     getCoordinates();
     getSearchResults();
 }
 
 async function getSearchResults() {
-    let company;
 
     const response = await fetch('/four', {
         method: 'POST',
@@ -463,7 +534,7 @@ function updateChart(data) {
             company = airlineCompany[data.graphData[x].airline];
         }
         else {
-            company = data.graphData[x].airline;
+            company = "IAATA: " + data.graphData[x].airline;
         }
         //console.log(data.graphData[x].years);
 
@@ -503,3 +574,22 @@ const quarterChart = document.getElementById("quarterChart");
 quarterChart.addEventListener("change", function() {
     updateChart(chartData);
 });
+
+async function checkUserStatus() {
+    const response = await fetch('/userActive');
+    if (response.ok) {
+        const data = await response.json();
+        if (data.exists == 0) {
+        clearInterval(userActive);
+        window.location.href = "/userInformation.html";
+        }
+    }
+    else {
+        alert('Failed to generate the HTML file.');
+    }
+}
+
+let userActive = setInterval(checkUserStatus, 1000);
+
+
+
