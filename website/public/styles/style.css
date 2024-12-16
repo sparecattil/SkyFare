@@ -277,7 +277,7 @@ body {
   align-items: center;
   width: 100%;
   height: 800px;
-  padding-top: 20px;
+  padding-top: 100px;
 }
 
 .chartInput {
@@ -300,7 +300,7 @@ body {
 }
 
 .flightSearchChart h1 {
-  padding-top: 50px;
+  padding-top: 20px;
   font-size: 45px;
   color: black;
   opacity: 50%;
