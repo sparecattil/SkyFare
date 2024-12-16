@@ -149,7 +149,7 @@ async function getReccomendations() {
             }
             else if (data.recommendations[x].quarter == '4') {
                 fromFour.innerHTML = "FROM: " + data.recommendations[x].origin;
-                toFour.innerHTML = "DESTINATION: " + data.recommendations[x].destination;
+                toFour.innerHTML = "TO: " + data.recommendations[x].destination;
                 airlineFour.innerHTML = "AIRLINE: " + company;
                 airlineFour.style.fontWeight = "normal";
                 milesFour.innerHTML = "MILES: " + data.recommendations[x].miles;
