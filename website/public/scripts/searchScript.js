@@ -124,36 +124,36 @@ async function getReccomendations() {
             }
 
             if (data.recommendations[x].quarter == '1') {
-                fromOne.innerHTML = "FROM: " + data.recommendations[x].origin;
-                toOne.innerHTML = "TO: " + data.recommendations[x].destination;
-                airlineOne.innerHTML = "AIRLINE: " + company;
+                fromOne.innerHTML = "<b>From:</b>" + data.recommendations[x].origin;
+                toOne.innerHTML = "<b>To:</b>" + data.recommendations[x].destination;
+                airlineOne.innerHTML = "<b>Airline:</b>" + company;
                 airlineOne.style.fontWeight = "normal";
-                milesOne.innerHTML = "MILES: " + data.recommendations[x].miles;
-                priceOne.innerHTML = "PRICE: " + data.recommendations[x].price;
+                milesOne.innerHTML = "<b>Miles:</b>" + data.recommendations[x].miles;
+                priceOne.innerHTML = "<b>Price:</b>" + data.recommendations[x].price;
             }
             else if (data.recommendations[x].quarter == '2') {
-                fromTwo.innerHTML = "FROM: " + data.recommendations[x].origin;
-                toTwo.innerHTML = "TO: " + data.recommendations[x].destination;
-                airlineTwo.innerHTML = "AIRLINE: " + company;
+                fromTwo.innerHTML = "<b>From:</b>" + data.recommendations[x].origin;
+                toTwo.innerHTML = "<b>To:</b>" + data.recommendations[x].destination;
+                airlineTwo.innerHTML = "<b>Airline:</b>" + company;
                 airlineTwo.style.fontWeight = "normal";
-                milesTwo.innerHTML = "MILES: " + data.recommendations[x].miles;
-                priceTwo.innerHTML = "PRICE: " + data.recommendations[x].price;
+                milesTwo.innerHTML = "<b>Miles:</b>" + data.recommendations[x].miles;
+                priceTwo.innerHTML = "<b>Price:</b>" + data.recommendations[x].price;
             }
             else if (data.recommendations[x].quarter == '3') {
-                fromThree.innerHTML = "FROM: " + data.recommendations[x].origin;
-                toThree.innerHTML = "TO: " + data.recommendations[x].destination;
-                airlineThree.innerHTML = "AIRLINE: " + company
+                fromThree.innerHTML = "<b>From: </b>" + data.recommendations[x].origin;
+                toThree.innerHTML = "<b>To:</b>" + data.recommendations[x].destination;
+                airlineThree.innerHTML = "<b>Airline:</b>" + company
                 airlineThree.style.fontWeight = "normal";
-                milesThree.innerHTML = "MILES: " + data.recommendations[x].miles;
-                priceThree.innerHTML = "PRICE: " + data.recommendations[x].price;
+                milesThree.innerHTML = "<b>Miles:</b>" + data.recommendations[x].miles;
+                priceThree.innerHTML = "<b>Price:</b>" + data.recommendations[x].price;
             }
             else if (data.recommendations[x].quarter == '4') {
-                fromFour.innerHTML = "FROM: " + data.recommendations[x].origin;
-                toFour.innerHTML = "TO: " + data.recommendations[x].destination;
-                airlineFour.innerHTML = "AIRLINE: " + company;
+                fromFour.innerHTML = "<b>From:</b>" + data.recommendations[x].origin;
+                toFour.innerHTML = "<b>To:</b>" + data.recommendations[x].destination;
+                airlineFour.innerHTML = "<b>Airline:</b>" + company;
                 airlineFour.style.fontWeight = "normal";
-                milesFour.innerHTML = "MILES: " + data.recommendations[x].miles;
-                priceFour.innerHTML = "PRICE: " + data.recommendations[x].price;
+                milesFour.innerHTML = "<b>Miles:</b>" + data.recommendations[x].miles;
+                priceFour.innerHTML = "<b>Price:</b>" + data.recommendations[x].price;
             }
          }
 
