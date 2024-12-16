@@ -374,6 +374,14 @@ selectElement.addEventListener("change", function() {
     }
     else {
       const destinationAirport = document.getElementById("destinationAirport");
+      while (destinationElement.firstChild) {
+        destinationElement.removeChild(destinationElement.firstChild);
+      }
+
+      const option = document.createElement("option");
+      option.value = "Destination Airport"; // Set the value attribute
+      option.textContent = "Destination Airport"; // Set the visible text
+      destinationElement.appendChild(option); // Append the option to the select
       destinationAirport.disabled = true;
     }
 });
@@ -420,6 +428,7 @@ async function allDestinationAirports() {
     while (destinationElement.firstChild) {
         destinationElement.removeChild(destinationElement.firstChild);
     }
+
     let originAirport = selectElement.value;
     //console.log("Origin Airport");
     //console.log(originAirport);
@@ -440,8 +449,8 @@ async function allDestinationAirports() {
         // Loop through the airports array and create option elements
 
         const option = document.createElement("option");
-        option.value = "Desitnation Airport"; // Set the value attribute
-        option.textContent = "Desitnation Airport"; // Set the visible text
+        option.value = "Destination Airport"; // Set the value attribute
+        option.textContent = "Destination Airport"; // Set the visible text
         destinationElement.appendChild(option); // Append the option to the select
 
         destinationAirports.forEach(airport => {
