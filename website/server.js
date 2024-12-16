@@ -209,12 +209,46 @@ app.post('/accountDetails', async(req, res) => {
   }
 });
 
+app.get('/userActive', async(req, res) => {
+  try {
+    const exists = await checkUserExistence(lastUsername);
+    //console.log("Server:")
+    //console.log(distinctAirports);
+    res.json({ exists });
+  } 
+  catch (error) {
+    console.error('Error in /test route:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 var lastUsername;
+
+// Function to check if user still exists in Redis
+async function checkUserExistence(lastUsername) {
+  var exists;
+  try {
+    const redisKey = `user:${lastUsername}`;
+
+    // Check if the key exists in Redis
+    exists = await redis.exists(redisKey);
+
+    if (!exists) {
+      console.log(`User ${lastUsername} does not exist in Redis`);
+    }
+  } 
+  catch (error) {
+    console.error("Error checking user existence in Redis:", error);
+    throw error;
+  }
+  return exists;
+}
 
 async function setUserDetails(originAirport, price, miles) {
   let client;
@@ -247,6 +281,20 @@ async function setUserDetails(originAirport, price, miles) {
     }
 
     //console.log("User details updated successfully for:", lastUsername);
+
+    const redisKey = `user:${lastUsername}`;
+
+    await redis
+      .multi() // Start a Redis transaction
+      .hset(redisKey, { 
+        originAirport: originAirport,
+        price: price,
+        miles: miles
+      })
+      .expire(redisKey, 300) // Set TTL to 5 minutes (300 seconds)
+      .exec();
+
+    console.log("User details stored in Redis with 5-minute TTL for:", lastUsername);
 
   } 
   catch (error) {
