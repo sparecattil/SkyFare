@@ -28,21 +28,15 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function getReccomendations() {
-    const response = await fetch('/five', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ originAirport }),
-      });
+    // const response = await fetch('/five');
     
-      if (response.ok) {
-          const data = await response.json();
-          
-      } 
-      else {
-        alert('Failed to generate the HTML file.');
-      }
+    //   if (response.ok) {
+    //       const data = await response.json();
+
+    //   } 
+    //   else {
+    //     alert('Failed to generate the HTML file.');
+    //   }
 }
 
 // Get the canvas element
@@ -66,27 +60,30 @@ const myChart = new Chart(ctx, {
     type: 'line',
     data: {
         labels: generateYears(1993, 2024),
-        datasets: [{
-            label: 'Votes',
-            data: generateDataForYears(),
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-            ],
-            borderWidth: 1
-        }]
+        datasets: [
+            {
+                label: 'Votes 1',  // First line
+                data: generateDataForYears(),
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            },
+            {
+                label: 'Votes 2',  // Second line
+                data: generateDataForYears(),
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            },
+            {
+                label: 'Votes 3',  // Third line
+                data: generateDataForYears(),
+                backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                borderColor: 'rgba(255, 206, 86, 1)',
+                borderWidth: 1
+            },
+            // You can add more datasets here for additional lines
+        ]
     },
     options: {
         scales: {
@@ -99,6 +96,7 @@ const myChart = new Chart(ctx, {
         }
     }
 });
+
 
 
 const map = L.map('map', {

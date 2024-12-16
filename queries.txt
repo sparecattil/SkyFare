@@ -152,39 +152,72 @@ Query Four:
   Return: For each airline that flys the route return the price, quarter and year
   
   Answer:  db.flightroutes.aggregate([
-              {
-                $match: {
-                  "origin.airport": "CVG",  // Replace "CVG" with the desired origin airport
-                  "destination.airport": "LAX"  // Replace "LAX" with the desired destination airport
-                }
-              },
-              {
-                $addFields: {
-                  averagePrice: {
-                    $avg: [
-                      { $toDouble: { $ifNull: ["$largestCarrier.fare", 0] } },
-                      { $toDouble: { $ifNull: ["$lowestCarrier.fare", 0] } }
-                    ]
-                  }
-                }
-              },
-              {
-                $group: {
-                  _id: { year: "$year", quarter: "$quarter" },
-                  avgPrice: { $avg: "$averagePrice" },
-                  year: { $first: "$year" },
-                  quarter: { $first: "$quarter" }
-                }
-              },
-              {
-                $project: {
-                  _id: 0,
-                  year: 1,
-                  quarter: 1,
+          {
+            $match: {
+              "origin.airport": "CVG",  // Replace "CVG" with the desired origin airport
+              "destination.airport": "LAX"  // Replace "LAX" with the desired destination airport
+            }
+          },
+          {
+            $addFields: {
+              averagePrice: {
+                $avg: [
+                  { $toDouble: { $ifNull: ["$largestCarrier.fare", 0] } },
+                  { $toDouble: { $ifNull: ["$lowestCarrier.fare", 0] } }
+                ]
+              }
+            }
+          },
+          {
+            $group: {
+              _id: { year: "$year", quarter: "$quarter" },
+              avgPrice: { $avg: "$averagePrice" },
+              year: { $first: "$year" },
+              quarter: { $first: "$quarter" }
+            }
+          },
+          {
+            $group: {
+              _id: "$quarter",  // Group by quarter
+              years: {
+                $push: {  // Collect data for each year in the same quarter
+                  year: "$year",
                   averagePrice: "$avgPrice"
                 }
               }
-            ])
+            }
+          },
+          {
+            $project: {
+              _id: 0,
+              quarter: "$_id",
+              years: 1
+            }
+          },
+          {
+            $addFields: {
+              yearsFormatted: {
+                $arrayToObject: {  // Convert the array of years into an object with year as the key
+                  $map: {
+                    input: "$years",
+                    as: "yearData",
+                    in: [
+                      { $concat: [{ $toString: "$$yearData.year" }] },  // Create keys like 'year1', 'year2', etc.
+                      "$$yearData.averagePrice"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            $project: {
+              quarter: 1,
+              yearsFormatted: 1
+            }
+          }
+        ]);
+
 
   
 Query Five: 
