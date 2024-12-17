@@ -107,7 +107,7 @@
 
 ### 10. Populate Redis Database 0
 
-- Run the following file to populate **Redis Database 0**:
+- Run the following command to populate **Redis Database 0**:
 
   ```bash
   python SkyFarePopulateRedis.py
@@ -119,13 +119,31 @@
 
 ### 11. Populate Redis Database 1 and MongoDB
 
-- Run the following file to populate **Redis Database 1** and **MongoDB**:
+- Run the following command to populate **Redis Database 1** and **MongoDB**:
 
   ```bash
   python SkyFarePopulateMongo.py
   ```
 
-- **Approximate wait time:** XX minutes (Depends on computer specifications).
+- **Approximate wait time:** 30 minutes (Depends on computer specifications).
 
 ---
+
+### 12. Run Website Server
+
+- Run the following command to run the website server:
+
+  ```bash
+  node website/server.js
+  ```
+
+---
+
+### 13. Open Website
+
+- Open a web browser and type the following into the search bar:
+
+```bash
+  localhost:3000
+  ```
 
