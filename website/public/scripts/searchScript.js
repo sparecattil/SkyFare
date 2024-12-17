@@ -214,7 +214,7 @@ async function getReccomendations() {
 
     } 
     else {
-        // Repose if server errors out
+        // Response if server errors out
         alert('Failed to generate the HTML file.');
     }
 }
@@ -365,19 +365,29 @@ async function allOriginAirports() {
     }
 }
 
+// Event listener that checks if origin airport value is changed.
+// If changed to "Origin Airport" then disable destination airport input field.
+// else populate destination airport input field elements
 selectElement.addEventListener("change", function() {
     //console.log("HERE");
+
+    // If value selected in origin airport input field then enable destination airports and load elements
     if (!(selectElement.value == "Origin Airport")) {
       const destinationAirport = document.getElementById("destinationAirport");
       destinationAirport.disabled = false;
       allDestinationAirports();
     }
+    // If value is not selected in origin airport input field then rest destination airport input field
     else {
+      // Get destination input field
       const destinationAirport = document.getElementById("destinationAirport");
+
+      // Remove all current elements
       while (destinationElement.firstChild) {
         destinationElement.removeChild(destinationElement.firstChild);
       }
 
+      // Creat default element for destination airport
       const option = document.createElement("option");
       option.value = "Destination Airport"; // Set the value attribute
       option.textContent = "Destination Airport"; // Set the visible text
@@ -386,52 +396,93 @@ selectElement.addEventListener("change", function() {
     }
 });
 
+// Get Destination input field element
 const destinationElement = document.getElementById("destinationAirport");
 
+// Even listener that checks if destination input field has changed.
+// If not default value then enable submit button, else disable.
 destinationElement.addEventListener("change", function() {
+    // If not default value
     if (!(destinationElement.value == "Destination Airport")) {
         const submitFlights = document.getElementById("submitFlights");
+        // Enable Button
         submitFlights.disabled = false;
     }
     else {
         const submitFlights = document.getElementById("submitFlights");
+        // Disable Button
         submitFlights.disabled = true;
     }
 });
 
+///////////////////////////////////////////////
+// Function Name: searchRoute 
+// Description: The following button is called 
+//              when the user hits the submit 
+//              button. Its purpose is to 
+//              populate the coordinates for 
+//              the map and update the chart 
+//              data.
+///////////////////////////////////////////////
 function searchRoute() {
     getCoordinates();
     getSearchResults();
 }
 
+///////////////////////////////////////////////
+// Function Name: getSearchResults 
+// Description: The following function asks the 
+//              server to run the full-text 
+//              search query on the "Origin 
+//              Destination Airports". The 
+//              server will return data and 
+//              then a method to update the 
+//              chart is called.
+///////////////////////////////////////////////
 async function getSearchResults() {
 
+    // Aks the server to query the price history given the origin and destination airport
     const response = await fetch('/four', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify({ originAirport: selectElement.value, destinationAirport: destinationElement.value }),
-      });
-      if (response.ok) {
+    });
+    // If the server responds with no error
+    if (response.ok) {
+        // Get the data received from the server
         const data = await response.json();
         chartData = data;
+        // Call update chart method
         updateChart(chartData);
-      }
-      else {
+    }
+    else {
         alert('Failed to generate the HTML file.');
-      }
+    }
 }
 
+///////////////////////////////////////////////
+// Function Name: allDestinationAirports 
+// Description: The following function will 
+//              tell the server to query  the 
+//              destination airports given the 
+//              origin airport.
+///////////////////////////////////////////////
 async function allDestinationAirports() {
+    // Set destination airports to empty
     destinationAirports = [];
+    // Remove all current child elements
     while (destinationElement.firstChild) {
         destinationElement.removeChild(destinationElement.firstChild);
     }
 
+    // Get the value for teh current selected origin airport
     let originAirport = selectElement.value;
     //console.log("Origin Airport");
     //console.log(originAirport);
+
+    // Ask the server to query
     const response = await fetch('/three', {
       method: 'POST',
       headers: {
@@ -439,20 +490,23 @@ async function allDestinationAirports() {
       },
       body: JSON.stringify({ originAirport }),
     });
-  
+    
+    // If the server responds with no errors
     if (response.ok) {
+        // Get the data received from the server
         const data = await response.json();
+        // Get the array
         destinationAirports = data.routesFromOrigin;
         //console.log("Client:");
         //console.log(destinationAirports);
 
-        // Loop through the airports array and create option elements
-
+        // Creat defualt child element
         const option = document.createElement("option");
         option.value = "Destination Airport"; // Set the value attribute
         option.textContent = "Destination Airport"; // Set the visible text
         destinationElement.appendChild(option); // Append the option to the select
 
+        // Parse through array and create a new selectable element for each input.
         destinationAirports.forEach(airport => {
         const option = document.createElement("option");
         option.value = airport; // Set the value attribute
@@ -461,13 +515,31 @@ async function allDestinationAirports() {
         });
     } 
     else {
+        // Response if server errors out
       alert('Failed to generate the HTML file.');
     }
 }
 
+///////////////////////////////////////////////
+// Function Name: getCoordinates 
+// Description: The following function akses 
+//              the server to query the 
+//              coordinates of the origin and 
+//              destination airport. If the 
+//              server responds with data 
+//              format the data into markers 
+//              displayed on the map and 
+//              create a line on the map.
+///////////////////////////////////////////////
 async function getCoordinates() {
+
+    // Get the origin airport input element
     const originAirport = document.getElementById("originAirport").value;
+
+    // Get the destination airport input element
     const destinationAirport = document.getElementById("destinationAirport").value;
+
+    // Ask the server to run the query to get the coordinates of the following origin and destination airports.
     const response = await fetch('/seven', {
         method: 'POST',
         headers: {
@@ -476,14 +548,21 @@ async function getCoordinates() {
         body: JSON.stringify({ originAirport, destinationAirport }),
     });
 
+    // If the server responds with no error
     if (response.ok) {
+        // Grab the data recieved from the server.
         const data = await response.json();
         //console.log(data);
 
+        // Clear the Map 
         clearMap();
+        
+        // Set the location array to empty
         let locations = [];
+        // Set the pathCoordinates array to empty
         let pathCoordinates = [];
 
+        // If the origin airport or destination is "MIA" chnages the coordinate values to correct coordinates.
         if (originAirport == "MIA") {
             locations = [
                 { name: originAirport, lat: 25.79, lng: -80.28 },
@@ -504,6 +583,7 @@ async function getCoordinates() {
                 [25.79, -80.28]
             ];
         }
+        // Else continue uing the values returned by the server
         else {
             locations = [
                 { name: originAirport, lat: data.originLat, lng: data.originLon },
@@ -516,7 +596,7 @@ async function getCoordinates() {
             ];
         }
         
-        // Add markers and store them in the array
+        // For all locations in the location array create a marker
         locations.forEach(location => {
             const marker = L.marker([location.lat, location.lng])
                 .addTo(map)
@@ -524,21 +604,37 @@ async function getCoordinates() {
             markers.push(marker); // Store the marker reference
         });
         
+        // Create a line from origin to destination airport given the pathCoordinates array.
         polyline = L.polyline(pathCoordinates, { color: 'blue', weight: 3 }).addTo(map);
 
     } 
     else {
+        // Response if server errors out
       alert('Failed to generate the HTML file.');
     }
 }
 
+///////////////////////////////////////////////
+// Function Name: updateChart 
+// Input: Graph Data Array
+// Description: The following function parses 
+//              through the data given and 
+//              populates a new dataset for 
+//              each airline depending on the
+//              selected quarter.
+///////////////////////////////////////////////
 function updateChart(data) {
+    // Get quarter select input element value
     const quarterChart = document.getElementById("quarterChart").value;
+
+    // Set chart datasets to empty
     myChart.data.datasets = [];
 
     //console.log(data);
     
+    // Parse through the data
     for (x in data.graphData){
+        // If the airline is in the dictionary set value else keep IAATA code
         if (data.graphData[x].airline in airlineCompany){
             company = airlineCompany[data.graphData[x].airline];
         }
@@ -547,58 +643,80 @@ function updateChart(data) {
         }
         //console.log(data.graphData[x].years);
 
+        // Convert Dictionary of attributes to new from (year: price)
         const yearToPrice = data.graphData[x].years.reduce((acc, item) => {
             acc[item.year] = item.avgPrice;
             return acc;
         }, {});
 
+        // randomColor generator
         const randomColor = `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 0.2)`;
+        
+        // Boder Change opacity
         const randomBorderColor = randomColor.replace("0.2", "1");
         
+        // Get the quarter from the selectable input field
         let checkQuarter = quarterChart.slice(-1);
         //console.log(checkQuarter);
 
+        // If the airline is empty then skip that data.
         if (data.graphData[x].airline != ''){
+            // if the quarter matches what is being selected on the GUI then populate that data as a new dataset
             if (checkQuarter == data.graphData[x].quarter) {
                 //console.log("HERE");
                 const newDataset = {
-                    label: company, // Name for the dataset (e.g., an airline name)
-                    data: yearToPrice, // Data points for the X-axis labels
-                    backgroundColor: randomColor, // Fill color (for bar or radar charts)
-                    borderColor: randomBorderColor, // Line color (for line charts)
-                    borderWidth: 1, // Line thickness
+                    label: company, 
+                    data: yearToPrice,
+                    backgroundColor: randomColor, 
+                    borderColor: randomBorderColor, 
+                    borderWidth: 1, 
                 };
+                // Add the dataset to the chart
                 myChart.data.datasets.push(newDataset);
             }
         }
     }
-        
-    // Add the new dataset
-    
+    // Update the chart
     myChart.update();
 }
 
+// Get quarter select input element
 const quarterChart = document.getElementById("quarterChart");
 
+// Event listener to update chart upon quarter change.
 quarterChart.addEventListener("change", function() {
     updateChart(chartData);
 });
 
+///////////////////////////////////////////////
+// Function Name: checkUserStatus 
+// Description: The following function asks 
+//              the server to check the TTL 
+//              value of the user. If the user 
+//              is not active then send the 
+//              user back to the 
+//              userInformation.html page.
+///////////////////////////////////////////////
 async function checkUserStatus() {
+    // Ask server to check TTL status for user
     const response = await fetch('/userActive');
+
+    // If the server responds with no error
     if (response.ok) {
         const data = await response.json();
+        // If user not active
         if (data.exists == 0) {
-        clearInterval(userActive);
-        window.location.href = "/userInformation.html";
+            // Clear Interval
+            clearInterval(userActive);
+            // Move to Page
+            window.location.href = "/userInformation.html";
         }
     }
     else {
+        // Response if server errors out
         alert('Failed to generate the HTML file.');
     }
 }
 
+// Interval variable for continuous checks in user details TTL in Redis
 let userActive = setInterval(checkUserStatus, 1000);
-
-
-

@@ -66,9 +66,9 @@ async function checkUsername() {
         password.classList.remove("error");
         username.value = '';
         password.value = '';
-      
+        
+        // Determine page navigation by checking user status
         checkUserStatus();
-
       }
       // if status is false
       else if (data.signInStatus == false) {
@@ -86,13 +86,25 @@ async function checkUsername() {
     }
 }
 
+///////////////////////////////////////////////
+// Function Name: checkUserStatus 
+// Description: The following function asks 
+//              the server to check the TTL 
+//              value of the user. If active 
+//              then send to search page, else 
+//              send the user to the 
+//              userInformation page to fill 
+//              out the necessary details. 
+///////////////////////////////////////////////
 async function checkUserStatus() {
   const response = await fetch('/userActive');
   if (response.ok) {
     const data = await response.json();
+    // If user not active
     if (data.exists == 0) {
       window.location.href = "/userInformation.html";
     }
+    // If user is active
     else {
       window.location.href = "/search.html"
     }

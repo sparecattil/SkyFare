@@ -14,7 +14,7 @@ Query Two:
   
   Answer:  db.flightroutes.aggregate([
             {
-              $match: { "origin.airport": "XXX" }  // Replace "STL" with the desired origin airport
+              $match: { "origin.airport": "XXX" }  
             },
             {
               $addFields: {
@@ -34,7 +34,7 @@ Query Two:
                             else: "$averageFare"
                           }
                         },
-                        null  // Default to null for invalid values
+                        null  
                       ]
                     }
                   },
@@ -84,27 +84,27 @@ Query Two:
             },
             {
               $group: {
-                _id: "$origin.airport",  // Group by origin airport
+                _id: "$origin.airport",  
                 maxFare: { $max: "$fares" },
                 minFare: { $min: "$fares" },
-                maxMiles: { $max: { $toDouble: "$nsmiles" } },  // Ensure miles are treated as numbers
+                maxMiles: { $max: { $toDouble: "$nsmiles" } },  
                 minMiles: { $min: { $toDouble: "$nsmiles" } }
               }
             },
             {
               $addFields: {
-                // Adjust miles only if maxMiles is smaller than minMiles
+                
                 maxMiles: {
                   $cond: {
-                    if: { $lt: ["$maxMiles", "$minMiles"] },  // If maxMiles < minMiles
-                    then: "$minMiles",  // Swap the values
+                    if: { $lt: ["$maxMiles", "$minMiles"] },  
+                    then: "$minMiles", 
                     else: "$maxMiles"
                   }
                 },
                 minMiles: {
                   $cond: {
-                    if: { $lt: ["$maxMiles", "$minMiles"] },  // If maxMiles < minMiles
-                    then: "$maxMiles",  // Swap the values
+                    if: { $lt: ["$maxMiles", "$minMiles"] },  
+                    then: "$maxMiles", 
                     else: "$minMiles"
                   }
                 }
@@ -119,8 +119,8 @@ Query Two:
                   minFare: "$minFare"
                 },
                 distanceOptions: {
-                  maxMiles: "$maxMiles",  // Use adjusted maxMiles
-                  minMiles: "$minMiles"   // Use adjusted minMiles
+                  maxMiles: "$maxMiles",  
+                  minMiles: "$minMiles"  
                 }
               }
             }
@@ -135,12 +135,12 @@ Query Three:
   
   Answer:  db.flightroutes.aggregate([
               { 
-                $match: { "origin.airport": "XXX" }  // Replace "CVG" with the origin airport you are searching for
+                $match: { "origin.airport": "XXX" }  
               },
               { 
                 $group: {
-                  _id: null,  // We don't need to group by any specific field
-                  destinations: { $addToSet: "$destination.airport" }  // Adds unique destination airports to the array
+                  _id: null,  
+                  destinations: { $addToSet: "$destination.airport" }  
                 }
               }
             ])
@@ -154,7 +154,7 @@ Query Four:
   Answer:  db.flightroutes.aggregate([
           {
             $match: {
-              $text: { $search: "CVG LAX" }  // Match based on user inputs for origin and destination airports
+              $text: { $search: "CVG LAX" }  
             }
           },
           {
@@ -183,13 +183,13 @@ Query Four:
           },
           {
             $group: {
-              _id: { airline: "$largestCarrier.name", year: "$year", quarter: "$quarter" },  // Group by airline, year, and quarter
+              _id: { airline: "$largestCarrier.name", year: "$year", quarter: "$quarter" },  
               avgPrice: { $avg: "$averagePrice" }
             }
           },
           {
             $group: {
-              _id: { airline: "$_id.airline", quarter: "$_id.quarter" },  // Group by airline and quarter
+              _id: { airline: "$_id.airline", quarter: "$_id.quarter" },  
               years: {
                 $push: {
                   year: "$_id.year",
@@ -206,7 +206,7 @@ Query Four:
             }
           },
           {
-            $sort: { "quarter": 1, "airline": 1 }  // Sort by quarter and airline
+            $sort: { "quarter": 1, "airline": 1 }  
           }
         ]);
   
@@ -217,37 +217,35 @@ Query Five:
   Return: For each quarter match the following fields and return the best match destination
   
   Answer: db.accounts.aggregate([
-          // Step 1: Match the user account based on the username
           {
             $match: {
-              username: "spatel66"  // Replace with actual username
+              username: "XXX"  
             }
           },
-          // Step 2: Project necessary fields: originAirport, miles, and price
           {
             $project: {
-              originAirport: 1, // Get the origin airport of the user
-              miles: 1,         // Get the miles from the user
-              price: 1          // Get the price from the user
+              originAirport: 1, 
+              miles: 1,         
+              price: 1          
             }
           },
-          // Step 3: Perform a simpler $lookup to get flight routes for each quarter
+          
           {
             $lookup: {
-              from: "flightroutes", // Look up the flight routes collection
+              from: "flightroutes", 
               let: { 
                 originAirportInput: "$originAirport",
-                maxDistance: { $toDouble: "$miles" },  // Convert miles to double
-                inputPrice: { $toDouble: "$price" }    // Convert price to double
+                maxDistance: { $toDouble: "$miles" },  
+                inputPrice: { $toDouble: "$price" }    
               },
               pipeline: [
-                // Match the origin airport with the user’s origin
+                
                 {
                   $match: {
                     $expr: { $eq: ["$origin.airport", "$$originAirportInput"] }
                   }
                 },
-                // Add calculated fields for distance and price deviation
+                
                 {
                   $addFields: {
                     distanceDeviation: { 
@@ -267,7 +265,7 @@ Query Five:
                               }
                             }
                           },
-                          "$$maxDistance"  // Use maxDistance from the account
+                          "$$maxDistance"  
                         ] 
                       }
                     },
@@ -288,27 +286,27 @@ Query Five:
                               }
                             }
                           },
-                          "$$inputPrice"  // Use inputPrice from the account
+                          "$$inputPrice"  
                         ] 
                       }
                     }
                   }
                 },
-                // Sort by distance deviation and price deviation
+                
                 {
                   $sort: {
                     distanceDeviation: 1,
                     priceDeviation: 1
                   }
                 },
-                // Group by quarter and pick the best flight for each quarter
+                
                 {
                   $group: {
                     _id: "$quarter",
                     bestFlight: { $first: "$$ROOT" }
                   }
                 },
-                // Project the desired output fields
+                
                 {
                   $project: {
                     _id: 0,
@@ -317,36 +315,36 @@ Query Five:
                     destination: "$bestFlight.destination.airport",
                     price: "$bestFlight.lowestCarrier.fare",
                     miles: "$bestFlight.nsmiles",
-                    airline: "$bestFlight.lowestCarrier.name"  // Include airline name
+                    airline: "$bestFlight.lowestCarrier.name"  
                   }
                 }
               ],
-              as: "flightRoutes" // Store results of the lookup in the "flightRoutes" array
+              as: "flightRoutes" 
             }
           },
-          // Step 4: Project the final output, including quarter and flight details
+          
           {
             $project: {
               username: 1,
               originAirport: 1,
-              flightRoutes: 1 // Include all flightRoutes, no need to extract the first one
+              flightRoutes: 1 
             }
           },
-          // Step 5: Unwind the flightRoutes array to get all quarters (not just the first one)
+          
           {
             $unwind: {
               path: "$flightRoutes",
-              preserveNullAndEmptyArrays: true  // This ensures we return null if there are no flights for a quarter
+              preserveNullAndEmptyArrays: true  
             }
           },
-          // Step 6: Group by quarter again to ensure you get one result per quarter
+          
           {
             $group: {
               _id: "$flightRoutes.quarter",
               quarterData: { $first: "$flightRoutes" }
             }
           },
-          // Step 7: Project the output to get the result in the desired format
+          
           {
             $project: {
               quarter: "$_id",
@@ -357,7 +355,7 @@ Query Five:
               airline: { $ifNull: ["$quarterData.airline", null] }
             }
           },
-          // Step 8: Sort by quarter (to get results in order)
+          
           {
             $sort: {
               quarter: 1
@@ -386,8 +384,8 @@ Query Seven:
   Answer: db.flightroutes.aggregate([
               {
                 $match: {
-                  "origin.airport": "XXX",         // Replace with the origin airport
-                  "destination.airport": "XXX"    // Replace with the destination airport
+                  "origin.airport": "XXX",         
+                  "destination.airport": "XXX"    
                 }
               },
               {
@@ -404,7 +402,7 @@ Query Seven:
                 }
               },
               { 
-                $limit: 1  // Only return the first matching document
+                $limit: 1  
               }
             ]);
 
