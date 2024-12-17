@@ -4872,3 +4872,10 @@ myvenv/Lib/site-packages/pymongo/topology_description.py
 myvenv/Lib/site-packages/pymongo/typings.py
 myvenv/Lib/site-packages/pymongo/uri_parser.py
 myvenv/Lib/site-packages/pymongo/write_concern.py
+venv/lib/python3.9/site-packages/redis-5.2.1.dist-info/INSTALLER
+venv/lib/python3.9/site-packages/redis-5.2.1.dist-info/LICENSE
+venv/lib/python3.9/site-packages/redis-5.2.1.dist-info/METADATA
+venv/lib/python3.9/site-packages/redis-5.2.1.dist-info/RECORD
+venv/lib/python3.9/site-packages/redis-5.2.1.dist-info/REQUESTED
+venv/lib/python3.9/site-packages/redis-5.2.1.dist-info/top_level.txt
+venv/lib/python3.9/site-packages/redis-5.2.1.dist-info/WHEEL
