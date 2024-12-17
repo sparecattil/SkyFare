@@ -15,7 +15,13 @@
 
 ---
 
-### 2. Create a Virtual Environment
+### 2. Navigate to Folder
+
+- Navigate to the checkout folder
+
+---
+
+### 3. Create a Virtual Environment
 
 - Run the following command to create a virtual environment:
 
@@ -25,7 +31,7 @@
 
 ---
 
-### 3. Activate the Virtual Environment
+### 4. Activate the Virtual Environment
 
 - For **Windows**, use the following command:
 
@@ -41,7 +47,7 @@
 
 ---
 
-### 4. Install Python Redis Dependency
+### 5. Install Python Redis Dependency
 
 - Run the following command to install the required Redis packages:
 
@@ -51,7 +57,7 @@
 
 ---
 
-### 5. Install Python MongoDB Dependency
+### 6. Install Python MongoDB Dependency
 
 - Run the following command to install the required MongoDB packages:
 
@@ -61,7 +67,7 @@
 
 ---
 
-### 6. Install Node.js Dependencies
+### 7. Install Node.js Dependencies
 
 - Run the following commands to install the required Node.js packages:
 
@@ -77,25 +83,29 @@
   npm install ioredis
   ```
 
+- For **Windows**, delete the **package.json** file located outside of the website folder
+  
+  **Reasoning**: Once express is installed, a new file **package.json** file will be generated and put outside of your website folder. We want to use the **package.json** file located inside the website folder.
+
 ---
 
-### 7. Run Redis Server Locally
+### 8. Run Redis Server Locally
 
 - Run a local instance of the Redis Server
 
-```bash
+  ```bash
   redis-server
   ```
 
 ---
 
-### 8. Open MongoDB Compass
+### 9. Open MongoDB Compass
 
 - Connect to localhost on MongoDB
 
 ---
 
-### 9. Add US Airline Flight Routes and Fares 1993-2024 Dataset
+### 10. Add US Airline Flight Routes and Fares 1993-2024 Dataset
 
 - Add the **US Airline Flight Routes and Fares 1993-2024 Dataset** to the working directory.
 
@@ -105,7 +115,7 @@
 
 ---
 
-### 10. Populate Redis Database 0
+### 11. Populate Redis Database 0
 
 - Run the following command to populate **Redis Database 0**:
 
@@ -117,7 +127,7 @@
 
 ---
 
-### 11. Populate Redis Database 1 and MongoDB
+### 12. Populate Redis Database 1 and MongoDB
 
 - Run the following command to populate **Redis Database 1** and **MongoDB**:
 
@@ -129,7 +139,7 @@
 
 ---
 
-### 12. Run Website Server
+### 13. Run Website Server
 
 - Run the following command to run the website server:
 
@@ -139,11 +149,11 @@
 
 ---
 
-### 13. Open Website
+### 14. Open Website
 
 - Open a web browser and type the following into the search bar:
 
-```bash
+  ```bash
   localhost:3000
   ```
 
