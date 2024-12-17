@@ -2,11 +2,6 @@
 // Contributors: Sebastian Parecattil, Shiv Patel
 // Versions: Node - 23.3.0
 //////////////////////////////////////////////////////////////////////////////////////////////
-//const express = require('express'); // Basic Library for web app
-//const path = require('path'); // Library for path transformation 
-//const http = require('http'); // Library for HTTP server
-//const { MongoClient } = require('mongodb');
-//const Redis = require('ioredis');
 
 import express from 'express'; // Basic Library for web app
 import { MongoClient } from 'mongodb'; // MongoDB driver for database connection
@@ -223,16 +218,20 @@ app.get('/userActive', async(req, res) => {
 // Asynchronous Helper Functions to Query MongoDB and/or Redis
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-var lastUsername;
+var lastUsername; // Stores the last username that was logged in
 
-// Function to check if user still exists in Redis
+//////////////////////////////////////////////////////
+// Function Name: checkUserExistence
+// Description: Checks if user still exists in Redis
+//              If the TTL for the user expires then
+//              the function will return false since
+//              the user is no longer in Redis
+//////////////////////////////////////////////////////
 async function checkUserExistence() {
   var exists;
   try {
-    const redisKey = `user:${lastUsername}`;
-
-    // Check if the key exists in Redis
-    exists = await redis.exists(redisKey);
+    const redisKey = `user:${lastUsername}`; // Key formatted with last username
+    exists = await redis.exists(redisKey); // Check if the key exists in Redis
 
     if (!exists) {
       console.log(`User ${lastUsername} does not exist in Redis`);
@@ -245,6 +244,14 @@ async function checkUserExistence() {
   return exists;
 }
 
+//////////////////////////////////////////////////////
+// Function Name: setUserDetails
+// Inputs: (string) the origin airport
+//         (string) price
+//         (string) miles
+// Description: Updates user preferences in both 
+//              MongoDB and Redis
+//////////////////////////////////////////////////////
 async function setUserDetails(originAirport, price, miles) {
   let client;
 
@@ -252,7 +259,6 @@ async function setUserDetails(originAirport, price, miles) {
     // Connect to MongoDB
     client = new MongoClient(uri);
     await client.connect();
-    console.log("Connected to MongoDB to update user details");
 
     // Access the database and the 'accounts' collection
     const db = client.db(dbName);
@@ -260,9 +266,9 @@ async function setUserDetails(originAirport, price, miles) {
 
     // Update the user document with the provided details
     const result = await collection.updateOne(
-      { username: lastUsername }, // Filter: Match the username
+      { username: lastUsername },
       { 
-        $set: {                   // Add or update fields
+        $set: {                   
           originAirport: originAirport,
           price: price,
           miles: miles
@@ -275,9 +281,7 @@ async function setUserDetails(originAirport, price, miles) {
       console.log("No account found for username:", lastUsername);
     }
 
-    //console.log("User details updated successfully for:", lastUsername);
-
-    const redisKey = `user:${lastUsername}`;
+    const redisKey = `user:${lastUsername}`; // Key formatted with last username
 
     await redis
       .multi() // Start a Redis transaction
@@ -290,7 +294,6 @@ async function setUserDetails(originAirport, price, miles) {
       .exec();
 
     console.log("User details stored in Redis with 5-minute TTL for:", lastUsername);
-
   } 
   catch (error) {
     console.error("Error updating user details:", error);
@@ -302,16 +305,21 @@ async function setUserDetails(originAirport, price, miles) {
 }
 
 
-// Function to add or validate a user in 'accounts' collection
+//////////////////////////////////////////////////////
+// Function Name: signIn
+// Inputs: (string) username
+//         (string) password
+// Description: Checks credentials or adds a new user 
+//              to the MongoDB "accounts" collection
+//////////////////////////////////////////////////////
 async function signIn(username, password) {
-  lastUsername = username;
+  lastUsername = username; // Setting last username to the current username
   let client;
   var signInStatus;
   try {
     // Connect to MongoDB
     client = new MongoClient(uri);
     await client.connect();
-    console.log("Connected to MongoDB");
 
     // Access the database and collection
     const db = client.db(dbName);
@@ -323,15 +331,15 @@ async function signIn(username, password) {
     if (!collectionNames.includes("accounts")) {
       await db.createCollection("accounts");
       console.log("Collection 'accounts' has been created.");
-      await collection.createIndex({ username: 1 }, { unique: true });
+      await collection.createIndex({ username: 1 }, { unique: true }); // Creating a unique index on username
       console.log("Unique index on 'username' has been created.");
     }
 
-    // Check if the user already exists
+    // Checking if the user already exists
     const existingUser = await collection.findOne({ username });
 
     if (existingUser) {
-      // User exists, validate the password
+      // Validating the password
       if (existingUser.password === password) {
         console.log("Password matches for existing user:", username);
         signInStatus = true;
@@ -342,7 +350,7 @@ async function signIn(username, password) {
       }
     } 
     else {
-      // Insert the new user
+      // Inserting the new user
       await collection.insertOne({ username, password });
       console.log("New user added:", username);
       signInStatus = true;
@@ -356,28 +364,24 @@ async function signIn(username, password) {
     // Close the connection
     if (client) await client.close();
   }
-
-  //console.log(signInStatus);
   return signInStatus;
 }
 
-// async function test() {
-//   var testStatus = await signIn("Shiv","123abc");
-//   console.log("First " + testStatus);
-//   testStatus = await signIn("Shiv","123aBc");
-//   console.log("Second " + testStatus);
-// }
 
-
-// Async function to connect and run a distinct query
+//////////////////////////////////////////////////////
+// Function Name: getDistinctAirports
+// Description: Retrieves a list of distinct origin 
+//              airports from the 'flightroutes' 
+//              collection in MongoDB.
+//////////////////////////////////////////////////////
 async function getDistinctAirports() {
   var distinctAirports;
+
   try {
     // Connect to the MongoDB client
     await client.connect();
-    console.log('Connected to MongoDB');
 
-    // Check if db is properly initialized
+    // Access the database
     const db = client.db(dbName);
     if (!db) {
       throw new Error('Failed to initialize the database');
@@ -389,10 +393,8 @@ async function getDistinctAirports() {
       throw new Error('Collection "flightroutes" does not exist');
     }
 
-    // Run the distinct query
+    // Run the distinct query to fetch unique origin airports
     distinctAirports = await collection.distinct('origin.airport');
-    //console.log('Distinct airports:', distinctAirports);
-
   } 
   catch (err) {
     console.error('Error running the query:', err);
@@ -403,24 +405,35 @@ async function getDistinctAirports() {
   return distinctAirports;
 }
 
+
+//////////////////////////////////////////////////////
+// Function Name: priceRangeAndDistance
+// Inputs: (string) the origin aiport
+// Description: Gets the price range (max and min 
+//              fares) and distance range (max and min
+//              miles) for flights originating from a 
+//              specific airport from MongoDB.
+//////////////////////////////////////////////////////
 async function priceRangeAndDistance(originAirport) {
   let result = {};
   var maxFare;
   var minFare;
   var maxMiles;
   var minMiles;
+
   try {
     // Connect to MongoDB
     await client.connect();
     console.log('Connected to MongoDB');
 
+    // Access the database and collection
     const db = client.db(dbName);
     const collection = db.collection('flightroutes');
 
     // Run the aggregation query
     const aggregationPipeline = [
       {
-        $match: { "origin.airport": originAirport }  // Replace "STL" with the desired origin airport
+        $match: { "origin.airport": originAirport }
       },
       {
         $addFields: {
@@ -440,7 +453,7 @@ async function priceRangeAndDistance(originAirport) {
                       else: "$averageFare"
                     }
                   },
-                  null  // Default to null for invalid values
+                  null
                 ]
               }
             },
@@ -490,27 +503,26 @@ async function priceRangeAndDistance(originAirport) {
       },
       {
         $group: {
-          _id: "$origin.airport",  // Group by origin airport
+          _id: "$origin.airport",  
           maxFare: { $max: "$fares" },
           minFare: { $min: "$fares" },
-          maxMiles: { $max: { $toDouble: "$nsmiles" } },  // Ensure miles are treated as numbers
+          maxMiles: { $max: { $toDouble: "$nsmiles" } },
           minMiles: { $min: { $toDouble: "$nsmiles" } }
         }
       },
       {
         $addFields: {
-          // Adjust miles only if maxMiles is smaller than minMiles
           maxMiles: {
             $cond: {
-              if: { $lt: ["$maxMiles", "$minMiles"] },  // If maxMiles < minMiles
-              then: "$minMiles",  // Swap the values
+              if: { $lt: ["$maxMiles", "$minMiles"] },
+              then: "$minMiles",
               else: "$maxMiles"
             }
           },
           minMiles: {
             $cond: {
-              if: { $lt: ["$maxMiles", "$minMiles"] },  // If maxMiles < minMiles
-              then: "$maxMiles",  // Swap the values
+              if: { $lt: ["$maxMiles", "$minMiles"] },
+              then: "$maxMiles",
               else: "$minMiles"
             }
           }
@@ -525,18 +537,18 @@ async function priceRangeAndDistance(originAirport) {
             minFare: "$minFare"
           },
           distanceOptions: {
-            maxMiles: "$maxMiles",  // Use adjusted maxMiles
-            minMiles: "$minMiles"   // Use adjusted minMiles
+            maxMiles: "$maxMiles", 
+            minMiles: "$minMiles"  
           }
         }
       }
     ];
 
-    const queryResult = await collection.aggregate(aggregationPipeline).toArray();
+    const queryResult = await collection.aggregate(aggregationPipeline).toArray(); // Execute the aggregation pipeline
 
-    // Format the result for clarity
+    // Formatting the result for send the max fare, min fare, max miles, and min miles
     if (queryResult.length > 0) {
-      result = queryResult[0]; // Take the first (and only) result
+      result = queryResult[0];
       maxFare = result['priceRange']['maxFare'];
       minFare = result['priceRange']['minFare'];
       maxMiles = result['distanceOptions']['maxMiles'];
@@ -548,41 +560,50 @@ async function priceRangeAndDistance(originAirport) {
   } 
   catch (error) {
     console.error('Error in priceRangeAndDistance:', error);
-    throw error; // Propagate the error
+    throw error;
   } 
   finally {
     await client.close();
   }
 
-  //console.log({ maxFare, minFare, maxMiles, minMiles });
   return { maxFare, minFare, maxMiles, minMiles };
 }
 
+//////////////////////////////////////////////////////
+// Function Name: destRoutesFromOrigin
+// Inputs: (string) username
+//         (string) password
+// Description: Retrieves all unique destination 
+//              airports for a given origin airport 
+//              from the 'flightroutes' collection in
+//              MongoDB.
+//////////////////////////////////////////////////////
 async function destRoutesFromOrigin(originAirport) {
   let routes = [];
+
   try {
     // Connect to MongoDB
     await client.connect();
-    console.log('Connected to MongoDB');
 
+    // Access the database and collection
     const db = client.db(dbName);
     const collection = db.collection('flightroutes');
 
     // Run the aggregation query
     const result = await collection.aggregate([
       { 
-        $match: { "origin.airport": originAirport }  // Replace "CVG" with the origin airport you are searching for
+        $match: { "origin.airport": originAirport }
       },
       { 
         $group: {
-          _id: null,  // We don't need to group by any specific field
-          destinations: { $addToSet: "$destination.airport" }  // Adds unique destination airports to the array
+          _id: null, 
+          destinations: { $addToSet: "$destination.airport" }
         }
       },
       { 
         $project: { 
-          _id: 0,  // Exclude the _id field
-          destinations: { $sortArray: { input: "$destinations", sortBy: 1 } }  // Sort the destinations array alphabetically
+          _id: 0, 
+          destinations: { $sortArray: { input: "$destinations", sortBy: 1 } } 
         }
       }
     ]).toArray();
@@ -591,8 +612,6 @@ async function destRoutesFromOrigin(originAirport) {
     if (result.length > 0) {
       routes = result[0].destinations;
     }
-
-    //console.log(routes);
   } 
   catch (error) {
     console.error('Error in destRoutesFromOrigin:', error);
@@ -601,9 +620,18 @@ async function destRoutesFromOrigin(originAirport) {
     await client.close();
   }
 
-  return routes; // Return the array of destinations
+  return routes;
 }
 
+
+//////////////////////////////////////////////////////
+// Function Name: getLatLong
+// Inputs: (string) the origin airport
+//         (string) the destination airport
+// Description: Retrieves the latitude and longitude 
+//              for the specified origin and 
+//              destination airports from Redis.
+//////////////////////////////////////////////////////
 async function getLatLong(originAirport, destinationAirport) {
   let originLat, originLon, destLat, destLon;
 
@@ -622,34 +650,39 @@ async function getLatLong(originAirport, destinationAirport) {
     destLat = destinationData.latitude || null;
     destLon = destinationData.longitude || null;
 
-    //console.log("Origin and Destination Data Fetched from Redis:");
-    //console.log({ originLat, originLon, destLat, destLon });
-
   } 
   catch (error) {
     console.error("Error fetching latitude and longitude from Redis:", error);
     throw error;
   }
 
-  // Return the latitude and longitude values
   return { originLat, originLon, destLat, destLon };
 }
 
+
+//////////////////////////////////////////////////////
+// Function Name: getGraphData
+// Inputs: (string) the origin airport
+//         (string) the destination airport
+// Description: Retrieves graph data showing average 
+//              prices over years and quarters for 
+//              flights between the specified origin 
+//              and destination airports from MongoDB.
+//////////////////////////////////////////////////////
 async function getGraphData(originAirport, destinationAirport) {
   let client;
   let queryResult;
 
   try {
     // Connect to MongoDB
-    client = new MongoClient(uri); // Replace 'uri' with your MongoDB connection string
+    client = new MongoClient(uri);
     await client.connect();
-    console.log("Connected to MongoDB for graph data");
 
     // Access the database and collection
-    const db = client.db(dbName); // Replace 'dbName' with your database name
-    const collection = db.collection("flightroutes"); // Collection name
+    const db = client.db(dbName);
+    const collection = db.collection("flightroutes");
 
-    // Run the updated aggregation pipeline
+    // Run the aggregation query
     queryResult = await collection.aggregate([
       {
         $match: {
@@ -706,7 +739,7 @@ async function getGraphData(originAirport, destinationAirport) {
         }
       },
       {
-        $sort: { quarter: 1, airline: 1 } // Sort by quarter and airline
+        $sort: { quarter: 1, airline: 1 }
       }
     ]).toArray();
 
@@ -716,25 +749,34 @@ async function getGraphData(originAirport, destinationAirport) {
     throw error;
   } 
   finally {
-    // Ensure MongoDB connection is closed
     if (client) await client.close();
   }
 
-  return queryResult; // Return the formatted graph data
+  return queryResult;
 }
 
 
+//////////////////////////////////////////////////////
+// Function Name: getUserRecommendations
+// Description: Generates flight recommendations for 
+//              the currently active user based on 
+//              their stored preferences (origin 
+//              airport, max distance, and price) from
+//              MongoDB.
+//////////////////////////////////////////////////////
 async function getUserRecommendations() {
   let client;
   var queryResult;
   try {
-    client = new MongoClient(uri); // Replace 'uri' with your MongoDB connection string
+    // Connect to MongoDB
+    client = new MongoClient(uri);
     await client.connect();
-    console.log("Connected to MongoDB for user recommendations");
 
-    const db = client.db(dbName); // Replace 'dbName' with your database name
-    const collection = db.collection("accounts"); // Collection name
+    // Access the database and collection
+    const db = client.db(dbName);
+    const collection = db.collection("accounts");
 
+    // Run the aggregation query
     queryResult = await collection.aggregate([
       {
         $match: {
@@ -870,8 +912,6 @@ async function getUserRecommendations() {
         }
       }
     ]).toArray();
-    //console.log(queryResult);
-    
   } 
   catch (error) {
     console.error("Error in getUserRecommendations:", error);
