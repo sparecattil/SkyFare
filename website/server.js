@@ -424,7 +424,6 @@ async function priceRangeAndDistance(originAirport) {
   try {
     // Connect to MongoDB
     await client.connect();
-    console.log('Connected to MongoDB');
 
     // Access the database and collection
     const db = client.db(dbName);
