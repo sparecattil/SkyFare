@@ -21,66 +21,73 @@ batchSize = 50
 # Function to ensure the MongoDB database and collection are reset
 def initializeDatabase():
     with MongoClient(mongoUrl) as client:
+        # Checking if the database already exists
         if mongoDBDatabase in client.list_database_names():
             print(f"Database '{mongoDBDatabase}' exists. Dropping it.")
-            client.drop_database(mongoDBDatabase)
+            client.drop_database(mongoDBDatabase) # Dropping existing database to reset data
         
         print(f"Creating database '{mongoDBDatabase}' and collection '{mongoCollection}'.")
         db = client[mongoDBDatabase]
-        db.create_collection(mongoCollection)
+        db.create_collection(mongoCollection) # Create the new collection
 
-# Helper function to insert documents into MongoDB in bulk
+# Function to insert documents into MongoDB in bulk
 def saveDocs(documents, count):
     with MongoClient(mongoUrl) as client:
         dbo = client[mongoDBDatabase]
         for doc in documents:
+            # Inserting or updating documents in the collection
             dbo[mongoCollection].update_one(
-                {"_id": doc["_id"]},  # Match based on _id
-                {"$set": doc},        # Update document with new values
-                upsert=True           # Insert if not already present
+                {"_id": doc["_id"]}, # Match based on _id
+                {"$set": doc},       # Update document with new values
+                upsert=True          # Insert if not already present
             )
         print(f"Number of documents processed: {len(documents)}")
 
-# Function to store unique airport data in Redis database 1
+# Function to store an airport's latitudes and longitudes in Redis DB 1
 def storeAirportInRedis(airport, latitude, longitude):
     if not latitude or not longitude:  # Skip if latitude or longitude is empty
         return
 
-    redisKey = f"airport:{airport}"
+    redisKey = f"airport:{airport}" # Key format for airports
     if not redisWriter.exists(redisKey):  # Avoid overwriting existing data
         redisWriter.hset(redisKey, mapping={
             "latitude": latitude,
             "longitude": longitude
         })
 
-# Main function to process routes and populate MongoDB
+# Function to process routes and populate MongoDB
+# Also writes the latitudes and longitude of the origins and destinations to Redis DB 1 
 def populateRoutes():
-    readRoutes = 0
-    routeBatch = []
+    readRoutes = 0 # Counter for the number of routes read
+    routeBatch = [] # Batch of routes to be uploaded to MongoDB
 
-    for flightKey in redisReader.keys('flight:*'):  # Read from DB 0
-        flightID = flightKey[7:28]
+    # Reading flight data keys from Redis DB 0
+    for flightKey in redisReader.keys('flight:*'):
+        flightID = flightKey[7:28] # Extracting the unique flight ID from the key
 
+        # Fetching general flight information from Redis
         year = redisReader.hget("flight:" + flightID + ":info", "year")
         quarter = redisReader.hget("flight:" + flightID + ":info", "quarter")
         averageFare = redisReader.hget("flight:" + flightID + ":info", "averageFare")
         nsmiles = redisReader.hget("flight:" + flightID + ":info", "nsmiles")
 
-        # Process origin data
+        # Process origin airport information
         originAirport = redisReader.hget("flight:" + flightID + ":origin", "airport")
         originCity = redisReader.hget("flight:" + flightID + ":origin", "city")
         originGeocode = redisReader.hget("flight:" + flightID + ":origin", "geocode")
         if originGeocode and "\n" in originGeocode:
+            # Extracting latitude and longitude from geocode
             originLat, originLon = originGeocode.split("\n")[1].strip("()").split(", ")
-            storeAirportInRedis(originAirport, originLat, originLon)
+            storeAirportInRedis(originAirport, originLat, originLon) # Storing an origin airport's lat/lon in Redis DB 1
 
-        # Process destination data
+        # Process destination airport information
         destinationAirport = redisReader.hget("flight:" + flightID + ":destination", "airport")
         destinationCity = redisReader.hget("flight:" + flightID + ":destination", "city")
         destinationGeocode = redisReader.hget("flight:" + flightID + ":destination", "geocode")
         if destinationGeocode and "\n" in destinationGeocode:
+            # Extracting latitude and longitude from geocode
             destinationLat, destinationLon = destinationGeocode.split("\n")[1].strip("()").split(", ")
-            storeAirportInRedis(destinationAirport, destinationLat, destinationLon)
+            storeAirportInRedis(destinationAirport, destinationLat, destinationLon) # Storing an destination airport's lat/lon in Redis DB 1
 
         # Append to route batch
         routeBatch.append({
@@ -108,12 +115,16 @@ def populateRoutes():
         })
 
         readRoutes += 1
+
+        # Saving batch to MongoDB if batch size is reached
         if len(routeBatch) >= batchSize:
             saveDocs(routeBatch, len(routeBatch))
             routeBatch = []
+
         if readRoutes % 100 == 0:
             print('Routes Loaded: ' + str(readRoutes))
 
+    # Saving remaining routes in the final batch
     if len(routeBatch) > 0:
         saveDocs(routeBatch, len(routeBatch))
 
@@ -124,11 +135,11 @@ initializeDatabase()
 
 populateRoutes()
 
+# Creating a text index on origin and destination airport fields in MongoDB
 with MongoClient(mongoUrl) as client:
     dbo = client[mongoDBDatabase]
     dbo[mongoCollection].create_index({"origin.airport": "text", "destination.airport": "text"})
     print("Text index created on 'origin.airport' and 'destination.airport'.")
 
-# Close Redis connections
 redisReader.quit()
 redisWriter.quit()
