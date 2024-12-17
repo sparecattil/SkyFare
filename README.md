@@ -81,32 +81,51 @@
 
 ### 7. Run Redis Server Locally
 
-Run a local instance of the Redis Server
+- Run a local instance of the Redis Server
 
 ```bash
   redis-server
   ```
 
+---
+
 ### 8. Open MongoDB Compass
 
-Connect to localhost on MongoDB
+- Connect to localhost on MongoDB
+
+---
 
 ### 9. Add US Airline Flight Routes and Fares 1993-2024 Dataset
 
-Add US Airline Flight Routes and Fares 1993-2024 Dataset to the working directory
+- Add the **US Airline Flight Routes and Fares 1993-2024 Dataset** to the working directory.
 
-Dataset can be accessed here:
-https://www.kaggle.com/datasets/bhavikjikadara/us-airline-flight-routes-and-fares-1993-2024/data
+- The dataset can be accessed from the following link:
 
-### 10. Populated Redis Database 0
+  [US Airline Flight Routes and Fares 1993-2024 Dataset](https://www.kaggle.com/datasets/bhavikjikadara/us-airline-flight-routes-and-fares-1993-2024/data)
 
-Run the following file: SkyFarePopulateRedis.py
+---
 
-Approximate wait time: 2 min (Depends on computer specifications)
+### 10. Populate Redis Database 0
+
+- Run the following file to populate **Redis Database 0**:
+
+  ```bash
+  python SkyFarePopulateRedis.py
+  ```
+
+- **Approximate wait time:** 2 minutes (Depends on computer specifications).
+
+---
 
 ### 11. Populate Redis Database 1 and MongoDB
 
-Run the following file: SkyFarePopulateMongo.py
+- Run the following file to populate **Redis Database 1** and **MongoDB**:
 
-Approximate wait time:  (Depends on computer specifications)
+  ```bash
+  python SkyFarePopulateMongo.py
+  ```
+
+- **Approximate wait time:** XX minutes (Depends on computer specifications).
+
+---
 
