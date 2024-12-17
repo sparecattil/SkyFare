@@ -91,7 +91,7 @@
 
 ### 8. Run Redis Server
 
-- Run the following command to run a local instance of the Redis Server
+- Run the following command to run a local instance of the Redis Server:
 
   ```bash
   redis-server
@@ -107,7 +107,7 @@
 
 ### 10. Add US Airline Flight Routes and Fares 1993-2024 Dataset
 
-- Add the **US Airline Flight Routes and Fares 1993-2024 Dataset** to the working directory.
+- Add the **US Airline Flight Routes and Fares 1993-2024** dataset to the working directory.
 
 - The dataset can be accessed from the following link:
 
