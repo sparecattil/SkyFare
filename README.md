@@ -79,25 +79,34 @@
 
 ---
 
-### 7. Run Redis-Stack Server and/or Client
+### 7. Run Redis Server Locally
 
-- Run a local instance of the Redis-Stack Server and/or Client.
+Run a local instance of the Redis Server
 
-- Use the following command to run the Redis-Stack server using Docker (Optional):
-
-  ```bash
-  docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
+```bash
+  redis-server
   ```
 
-- Use the following command to run the Redis-Stack client using Docker (Optional):
+### 8. Open MongoDB Compass
 
-  ```bash
-  docker exec -it redis-stack redis-cli
-  ```
+Connect to localhost on MongoDB
 
-To Run redis via docker, ignore this for now
-docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
-docker start redis-stack
-docker stop redis-stack
-docker exec -it redis-stack redis-cli
-exit
+### 9. Add US Airline Flight Routes and Fares 1993-2024 Dataset
+
+Add US Airline Flight Routes and Fares 1993-2024 Dataset to the working directory
+
+Dataset can be accessed here:
+https://www.kaggle.com/datasets/bhavikjikadara/us-airline-flight-routes-and-fares-1993-2024/data
+
+### 10. Populated Redis Database 0
+
+Run the following file: SkyFarePopulateRedis.py
+
+Approximate wait time: 2 min (Depends on computer specifications)
+
+### 11. Populate Redis Database 1 and MongoDB
+
+Run the following file: SkyFarePopulateMongo.py
+
+Approximate wait time:  (Depends on computer specifications)
+
