@@ -1,7 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Contributors: Sebastian Parecattil, Shiv Patel
 // Versions: Node - 23.3.0
-//
 //////////////////////////////////////////////////////////////////////////////////////////////
 //const express = require('express'); // Basic Library for web app
 //const path = require('path'); // Library for path transformation 
@@ -10,35 +9,37 @@
 //const Redis = require('ioredis');
 
 import express from 'express'; // Basic Library for web app
-import { MongoClient } from 'mongodb';
+import { MongoClient } from 'mongodb'; // MongoDB driver for database connection
 import path from 'path'; // Library for path transformation 
 import http from 'http'; // Library for HTTP server
-import Redis from 'ioredis'; // Redis client
-import { fileURLToPath } from 'url'; // From change to "const __dirname = path.dirname(new URL(import.meta.url).pathname);"
+import Redis from 'ioredis'; // Library for Redis client
+import { fileURLToPath } from 'url'; // Helper to manage __dirname in ES modules
 
+// Initializing the express application
 const app = express();
 
-// Create an HTTP server using express
+// Creating an HTTP server using express
 const server = http.createServer(app);
 
-// Define the port to open the client
+// Define the port for the server, default to 3000 if environment variable is not set
 const port = process.env.PORT || 3000;
 
-// Start the server, Glitch Terminal will show this log
+// Starting the server
 server.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
 });
 
-//  Initializes parsing of JSON requests
+// Initializes parsing of JSON requests
 app.use(express.json()); 
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url)); //Changed from "const __dirname = path.dirname(new URL(import.meta.url).pathname);"
+const __dirname = path.dirname(fileURLToPath(import.meta.url)); // Getting __dirname in ES Modules
 
 // Serve the index.html file
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+// Serve the userInformation.html file
 app.get("/userInformation.html", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "userInformation.html"));
 });
@@ -50,16 +51,17 @@ app.use(express.static(path.join(__dirname, "public")));
 const uri = 'mongodb://127.0.0.1:27017';
 const dbName = 'SkyFare';
 
+// Initialize MongoDB client
 const client = new MongoClient(uri);
 
 // Connect to the local Redis server (default port is 6379)
 const redis = new Redis({
   host: '127.0.0.1', // Localhost
-  port: 6379,         // Default Redis port
-  db: 1               // Redis database index (default is 0)
+  port: 6379,        // Redis port
+  db: 1              // Redis database index is set to 1
 });
 
-// Test the connection
+// Testing the connection
 redis.on('connect', () => {
   console.log('Connected to Redis!');
 });
@@ -68,19 +70,24 @@ redis.on('error', (err) => {
   console.error('Error connecting to Redis:', err);
 });
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+// Routes (From Client Received on the Server)
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+// Fetch distinct airports
 app.get('/one', async(req, res) => {
   try {
     const distinctAirports = await getDistinctAirports();
-    //console.log("Server:")
-    //console.log(distinctAirports);
     res.json({ distinctAirports });
   } 
   catch (error) {
-    console.error('Error in /test route:', error);
+    console.error('Error in /one route:', error);
     res.status(500).send('Internal Server Error');
   }
 });
 
+// Fetch price range and distance for a given origin airport
 app.post('/two', async(req, res) => {
   const { originAirport } = req.body;
 
@@ -88,12 +95,8 @@ app.post('/two', async(req, res) => {
     return res.status(400).send('Origin not received on Server');
   }
 
-  //console.log("Received on Server: " + originAirport);
-
   try {
-    const { maxFare, minFare, maxMiles, minMiles } = await priceRangeAndDistance(originAirport); // Replace with query two function
-    //console.log("Server:") 
-    //console.log({ maxFare, minFare, maxMiles, minMiles });
+    const { maxFare, minFare, maxMiles, minMiles } = await priceRangeAndDistance(originAirport);
     res.json({ maxFare, minFare, maxMiles, minMiles });
   } 
   catch (error) {
@@ -102,6 +105,7 @@ app.post('/two', async(req, res) => {
   }
 });
 
+// Fetch all routes from an origin airport
 app.post('/three', async(req, res) => {
   const { originAirport } = req.body;
 
@@ -109,12 +113,8 @@ app.post('/three', async(req, res) => {
     return res.status(400).send('Origin not received on Server');
   }
 
-  //console.log("Received on Server: " + originAirport);
-
   try {
     const routesFromOrigin = await destRoutesFromOrigin(originAirport);
-    //console.log("Server:")
-    //console.log(routesFromOrigin);
     res.json({ routesFromOrigin });
   } 
   catch (error) {
@@ -123,7 +123,7 @@ app.post('/three', async(req, res) => {
   }
 });
 
-
+// Fetch graph data for the origin and destination airports
 app.post('/four', async(req, res) => {
   const { originAirport, destinationAirport } = req.body;
 
@@ -131,31 +131,29 @@ app.post('/four', async(req, res) => {
     return res.status(400).send('Origin and destination not received on Server');
   }
 
-
   try {
     const graphData = await getGraphData(originAirport, destinationAirport);
     res.json({ graphData });
   } 
   catch (error) {
-    console.error('Error in /three route:', error);
+    console.error('Error in /four route:', error);
     res.status(500).send('Internal Server Error');
   }
 });
 
+// Fetch user recommendations
 app.get('/five', async(req, res) => {
   try {
     const recommendations = await getUserRecommendations();
-    //console.log("Server:")
-    //console.log(distinctAirports);
     res.json({ recommendations });
   } 
   catch (error) {
-    console.error('Error in /test route:', error);
+    console.error('Error in /user route:', error);
     res.status(500).send('Internal Server Error');
   }
 });
 
-
+// Fetch latitude and longitude of origin and destination airports
 app.post('/seven', async(req, res) => {
   const { originAirport, destinationAirport } = req.body;
 
@@ -165,8 +163,6 @@ app.post('/seven', async(req, res) => {
 
   try {
     const { originLat, originLon, destLat, destLon } = await getLatLong(originAirport, destinationAirport);
-    //console.log("Server:")
-    //console.log(routesFromOrigin);
     res.json({ originLat, originLon, destLat, destLon });
   } 
   catch (error) {
@@ -175,7 +171,7 @@ app.post('/seven', async(req, res) => {
   }
 });
 
-
+// Fetch for user sign-in or account creation
 app.post('/accounts', async(req, res) => {
   const { username, password } = req.body;
 
@@ -193,6 +189,7 @@ app.post('/accounts', async(req, res) => {
   }
 });
 
+// Fetch to update user details in MongoDB and Redis
 app.post('/accountDetails', async(req, res) => {
   const { originAirport, price, miles } = req.body;
 
@@ -209,24 +206,22 @@ app.post('/accountDetails', async(req, res) => {
   }
 });
 
+// Fetch to check if the current user exists in Redis
 app.get('/userActive', async(req, res) => {
   try {
     const exists = await checkUserExistence();
-    //console.log("Server:")
-    //console.log(distinctAirports);
     res.json({ exists });
   } 
   catch (error) {
-    console.error('Error in /test route:', error);
+    console.error('Error in /userActive route:', error);
     res.status(500).send('Internal Server Error');
   }
 });
 
 
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+// Asynchronous Helper Functions to Query MongoDB and/or Redis
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 var lastUsername;
 
