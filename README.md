@@ -89,9 +89,9 @@
 
 ---
 
-### 8. Run Redis Server Locally
+### 8. Run Redis Server
 
-- Run a local instance of the Redis Server
+- Run the following command to run a local instance of the Redis Server
 
   ```bash
   redis-server
