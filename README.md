@@ -100,12 +100,15 @@ This application analyzes historical airline route data from 1993-2024 to help u
   ```bash
   redis-server
   ```
-
+  
+  Instructions for how to install Redis can be found here: [Redis Website Link](https://redis.io/)
 ---
 
 ### 9. Run MongoDB
 
 - Open MongoDB Compass and connect to localhost
+  
+  Instructions for how to install MongoDB shell and MongoDB Compass can be found here: [MongoDB Website Link](https://www.mongodb.com/)
 
 ---
 
