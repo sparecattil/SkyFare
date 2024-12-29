@@ -1,5 +1,11 @@
 # SkyFare
 
+## Overview
+This application analyzes historical airline route data from 1993-2024 to help users plan their flights more effectively. By considering factors like specific airlines (e.g., Delta, United Airlines), travel distances, and budget constraints, it provides a personalized and data-driven flight planning experience. Users can explore interactive visualizations of routes and receive tailored recommendations based on their account preferences. With insights into price trends and route options, this tool simplifies the process of planning affordable and convenient air travel in the United States.
+
+## Video Demo
+[![Thumbnail](https://github.com/user-attachments/assets/35d684c3-3218-461e-99a6-098e14ba36f4)](https://www.youtube.com/watch?v=990qhs73v2g)
+
 ## Versions
 
 - **Node.js:** 23.3.0  
