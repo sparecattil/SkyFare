@@ -103,9 +103,9 @@ This application analyzes historical airline route data from 1993-2024 to help u
 
 ---
 
-### 9. Open MongoDB Compass
+### 9. Run MongoDB
 
-- Connect to localhost on MongoDB
+- Open MongoDB Compass and connect to localhost
 
 ---
 
