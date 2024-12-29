@@ -83,7 +83,7 @@
   npm install ioredis
   ```
 
-- If a **package.json** file located outside of the website folder then delete that file
+- If a **package.json** file is located outside of the website folder then delete that file
   
   **Reasoning**: Once express is installed, a new file **package.json** file will be generated and put outside of your website folder. We want to use the **package.json** file located inside the website folder.
 
